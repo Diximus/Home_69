@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Счётчики — Квартиры 69 и Кирби</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+    }
+    body {
+      background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px -12px rgba(56, 189, 248, 0.25);
+    }
+    .nav-btn.active {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: #0f172a;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      border-bottom: 2px solid #38bdf8;
+      color: #38bdf8;
+    }
+    input, select {
+      background: #0f172a !important;
+      border: 1px solid #334155 !important;
+      color: #e2e8f0 !important;
+    }
+    input[type="month"] {
+      color-scheme: dark;
+      min-height: 2.75rem;
+    }
+    input[type="month"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+      cursor: pointer;
+      padding: 4px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .reminder-pulse {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+    .scroll-thin::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    table th { position: sticky; top: 0; background: #1e293b; z-index: 10; }
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="text-slate-200">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass border-b border-slate-700/50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500 flex items-center justify-center shadow-lg">
+          <i class="fas fa-tachometer-alt text-slate-900 text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight">Счётчики</h1>
+          <p class="text-xs text-slate-400" id="header-sub">Квартира 69</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="sync-status" class="text-xs text-slate-500 hidden md:inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/50" title="Статус синхронизации">
+          <i class="fas fa-cloud text-slate-400"></i>
+          <span id="sync-text">Локально</span>
+        </span>
+        <button id="btn-reminder" class="relative p-2 rounded-lg hover:bg-slate-700/50 transition" title="Напоминания">
+          <i class="fas fa-bell text-slate-300"></i>
+          <span id="reminder-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full reminder-pulse"></span>
+        </button>
+        <button id="btn-settings" class="p-2 rounded-lg hover:bg-slate-700/50 transition" title="Настройки">
+          <i class="fas fa-cog text-slate-300"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Apartment switcher -->
+    <div class="max-w-6xl mx-auto px-4 pb-3 flex gap-2">
+      <button data-apt="69" class="nav-btn active flex-1 py-2 px-3 rounded-lg text-sm font-medium transition">
+        <i class="fas fa-home mr-1.5"></i>Квартира 69
+      </button>
+      <button data-apt="kirby" class="nav-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-slate-800/60 transition">
+        <i class="fas fa-building mr-1.5"></i>Кирби
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-5 pb-24">
+    <!-- Reminder banner -->
+    <div id="reminder-banner" class="hidden mb-5 glass rounded-2xl p-4 border-l-4 border-amber-400 flex items-start gap-3">
+      <i class="fas fa-exclamation-triangle text-amber-400 mt-0.5"></i>
+      <div class="flex-1">
+        <p class="font-semibold text-amber-200" id="reminder-title">Напоминание</p>
+        <p class="text-sm text-slate-300 mt-1" id="reminder-text"></p>
+      </div>
+      <button onclick="document.getElementById('reminder-banner').classList.add('hidden')" class="text-slate-400 hover:text-white">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Dashboard cards -->
+    <section id="dashboard" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <!-- cards filled by JS -->
+    </section>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 mb-4 border-b border-slate-700/60 overflow-x-auto scroll-thin">
+      <button data-tab="history" class="tab-btn active px-4 py-2.5 text-sm font-medium whitespace-nowrap transition">История</button>
+      <button data-tab="charts" class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-400 transition">Графики</button>
+      <button data-tab="add" class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-400 transition">Внести показания</button>
+      <button data-tab="meters" class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-400 transition">Счётчики</button>
+      <button data-tab="tariffs" class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-400 transition">Тарифы</button>
+      <button data-tab="payments" class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-400 transition">Оплаты</button>
+    </div>
+
+    <!-- Tab content -->
+    <div id="tab-history" class="tab-content">
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto scroll-thin max-h-[60vh]">
+          <table class="w-full text-sm" id="history-table">
+            <thead>
+              <tr class="text-slate-400 text-left">
+                <th class="px-3 py-3 font-medium">Месяц</th>
+                <th class="px-3 py-3 font-medium">Вода</th>
+                <th class="px-3 py-3 font-medium">Газ</th>
+                <th class="px-3 py-3 font-medium">Т1</th>
+                <th class="px-3 py-3 font-medium">Т2</th>
+                <th class="px-3 py-3 font-medium">Потр. вода</th>
+                <th class="px-3 py-3 font-medium">Потр. газ</th>
+                <th class="px-3 py-3 font-medium">Потр. эл.</th>
+                <th class="px-3 py-3 font-medium">Итого ₽</th>
+              </tr>
+            </thead>
+            <tbody id="history-body" class="divide-y divide-slate-700/50"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-charts" class="tab-content hidden">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-4">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">Потребление воды (м³)</h3>
+          <canvas id="chart-water" height="200"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-4">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">Потребление газа (м³)</h3>
+          <canvas id="chart-gas" height="200"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-4 md:col-span-2">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">Электричество (кВт·ч)</h3>
+          <canvas id="chart-elec" height="180"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-4 md:col-span-2">
+          <h3 class="text-sm font-semibold text-slate-300 mb-3">Сумма в счёте (₽)</h3>
+          <canvas id="chart-cost" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-add" class="tab-content hidden">
+      <div class="glass rounded-2xl p-5 max-w-lg mx-auto">
+        <h3 class="text-lg font-semibold mb-4">Новые показания</h3>
+        <form id="form-readings" class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Месяц</label>
+            <input type="month" id="input-month" class="w-full rounded-lg px-3 py-2.5" required />
+          </div>
+          <div class="grid grid-cols-2 gap-3" id="fields-69">
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Вода (м³)</label>
+              <input type="number" step="0.001" id="input-water" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Газ (м³)</label>
+              <input type="number" step="0.001" id="input-gas" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Эл. Т1 (день)</label>
+              <input type="number" step="1" id="input-t1" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Эл. Т2 (ночь)</label>
+              <input type="number" step="1" id="input-t2" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 hidden" id="fields-kirby">
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Электричество</label>
+              <input type="number" step="1" id="input-elec-k" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+            <div>
+              <label class="block text-sm text-slate-400 mb-1">Газ</label>
+              <input type="number" step="1" id="input-gas-k" class="w-full rounded-lg px-3 py-2.5" />
+            </div>
+          </div>
+          <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-violet-500 text-slate-900 font-semibold hover:opacity-90 transition">
+            Сохранить показания
+          </button>
+        </form>
+        <p class="text-xs text-slate-500 mt-3 text-center">Данные сохраняются локально и синхронизируются через Firebase (если настроено)</p>
+      </div>
+    </div>
+
+    <div id="tab-meters" class="tab-content hidden">
+      <div class="grid md:grid-cols-2 gap-4" id="meters-info">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <div id="tab-tariffs" class="tab-content hidden">
+      <div class="space-y-5">
+        <!-- Variable tariffs (meters) -->
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Тарифы по приборам учёта</h3>
+            <button id="btn-save-tariffs" class="px-4 py-2 rounded-lg bg-sky-500/20 text-sky-300 text-sm font-medium hover:bg-sky-500/30 transition">
+              <i class="fas fa-save mr-1"></i>Сохранить всё
+            </button>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="tariffs-form">
+            <!-- filled by JS -->
+          </div>
+          <p class="text-xs text-slate-500 mt-3">Вода, канализация, электричество и газ пересчитываются по показаниям. Капремонт — фиксированная сумма.</p>
+        </div>
+
+        <!-- Housing services (ЖКХ) -->
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 class="text-lg font-semibold">Услуги ЖКХ (содержание + прочие)</h3>
+            <button id="btn-add-service" class="px-3 py-2 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition">
+              <i class="fas fa-plus mr-1"></i>Добавить
+            </button>
+          </div>
+          <div class="overflow-x-auto scroll-thin">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-slate-400 text-left border-b border-slate-700">
+                  <th class="px-3 py-2 font-medium">Наименование услуги</th>
+                  <th class="px-3 py-2 font-medium w-24">Ед.</th>
+                  <th class="px-3 py-2 font-medium w-28">Тариф ₽</th>
+                  <th class="px-3 py-2 font-medium w-32">Начислено ₽</th>
+                  <th class="px-3 py-2 font-medium w-12"></th>
+                </tr>
+              </thead>
+              <tbody id="services-body" class="divide-y divide-slate-700/50"></tbody>
+              <tfoot>
+                <tr class="font-semibold border-t border-slate-600">
+                  <td class="px-3 py-3" colspan="3">ИТОГО (идёт в «Прочие услуги» счёта)</td>
+                  <td class="px-3 py-3 text-emerald-300" id="services-total">0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="text-xs text-slate-500 mt-3">Сумма «Начислено» всех услуг подставляется в расчёт счёта как «Прочие услуги / ЖКХ». Логика: за м² (площадь 46,8), с человека или фиксированно за квартиру.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-payments" class="tab-content hidden">
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="p-4 border-b border-slate-700/50 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="font-semibold">Счета и оплаты</h3>
+          <p class="text-xs text-slate-400">Введите оплаченную сумму — месяц будет отмечен как оплаченный</p>
+        </div>
+        <div class="overflow-x-auto scroll-thin max-h-[65vh]">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-slate-400 text-left">
+                <th class="px-3 py-3 font-medium">Месяц</th>
+                <th class="px-3 py-3 font-medium">Сумма в счёте</th>
+                <th class="px-3 py-3 font-medium">Итого</th>
+                <th class="px-3 py-3 font-medium">Оплачено ₽</th>
+                <th class="px-3 py-3 font-medium">Статус</th>
+              </tr>
+            </thead>
+            <tbody id="payments-body" class="divide-y divide-slate-700/50"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom nav for mobile -->
+  <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-700/50 md:hidden z-40">
+    <div class="flex justify-around py-2">
+      <button data-tab="history" class="tab-btn flex flex-col items-center gap-0.5 px-3 py-1 text-sky-400">
+        <i class="fas fa-list text-lg"></i>
+        <span class="text-[10px]">История</span>
+      </button>
+      <button data-tab="charts" class="tab-btn flex flex-col items-center gap-0.5 px-3 py-1 text-slate-400">
+        <i class="fas fa-chart-line text-lg"></i>
+        <span class="text-[10px]">Графики</span>
+      </button>
+      <button data-tab="add" class="tab-btn flex flex-col items-center gap-0.5 px-3 py-1 text-slate-400">
+        <i class="fas fa-plus-circle text-lg"></i>
+        <span class="text-[10px]">Внести</span>
+      </button>
+      <button data-tab="meters" class="tab-btn flex flex-col items-center gap-0.5 px-3 py-1 text-slate-400">
+        <i class="fas fa-tachometer-alt text-lg"></i>
+        <span class="text-[10px]">Счётчики</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Modal: Edit reading -->
+  <div id="edit-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
+    <div class="glass rounded-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Редактировать показания</h3>
+        <button onclick="closeEditModal()" class="p-1.5 rounded-lg hover:bg-slate-700/50"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="form-edit" class="space-y-3">
+        <input type="hidden" id="edit-idx" />
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Месяц</label>
+          <input type="month" id="edit-month" class="w-full rounded-lg px-3 py-2.5" required />
+        </div>
+        <div id="edit-fields-69" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Вода</label>
+            <input type="number" step="0.001" id="edit-water" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Газ</label>
+            <input type="number" step="0.001" id="edit-gas" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Т1</label>
+            <input type="number" step="1" id="edit-t1" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Т2</label>
+            <input type="number" step="1" id="edit-t2" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+        </div>
+        <div id="edit-fields-kirby" class="grid grid-cols-2 gap-3 hidden">
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Электричество</label>
+            <input type="number" step="1" id="edit-elec" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Газ</label>
+            <input type="number" step="1" id="edit-gas-k" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Квартплата ₽</label>
+            <input type="number" step="0.01" id="edit-paid-rent" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-400 mb-1">Газ ₽</label>
+            <input type="number" step="0.01" id="edit-paid-gas" class="w-full rounded-lg px-3 py-2.5" />
+          </div>
+        </div>
+        <p class="text-xs text-slate-500">Потребление и суммы пересчитаются автоматически по соседним месяцам.</p>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-violet-500 text-slate-900 font-semibold">Сохранить</button>
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 text-slate-300">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Settings / Reminders -->
+  <div id="modal-overlay" class="hidden fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-4">
+    <div class="glass rounded-2xl w-full max-w-md p-5 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold" id="modal-title">Настройки</h3>
+        <button id="modal-close" class="p-1.5 rounded-lg hover:bg-slate-700/50"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    // ========== DATA ==========
+    
+    const EMBEDDED_DATA = {"apt69": [{"month": "Июль 2019", "water": 1.047, "gas": 0.043, "t1": 29.21, "t2": 0.23, "t_total": 29.44, "cons_water": 1.047, "cons_gas": 0.043, "cons_t1": 29.21, "cons_t2": 0.23, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Август 2019", "water": 1.469, "gas": 0.043, "t1": 67.34, "t2": 0.48, "t_total": 67.82, "cons_water": 0.422, "cons_gas": 0.0, "cons_t1": 38.13, "cons_t2": 0.25, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Сентябрь 2019", "water": 3.476, "gas": 0.938, "t1": 131.21, "t2": 10.61, "t_total": 141.82, "cons_water": 2.007, "cons_gas": 0.895, "cons_t1": 63.87, "cons_t2": 10.13, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Октябрь 2019", "water": 11.111, "gas": 80.798, "t1": 336.18, "t2": 86.04, "t_total": 422.22, "cons_water": 7.635, "cons_gas": 79.86, "cons_t1": 204.97, "cons_t2": 75.43, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Ноябрь 2019", "water": 23.067, "gas": 211.657, "t1": 685.98, "t2": 165.33, "t_total": 851.31, "cons_water": 11.956, "cons_gas": 130.859, "cons_t1": 349.8, "cons_t2": 79.29, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Декабрь 2019", "water": 33.0, "gas": 341.0, "t1": 1053.0, "t2": 317.0, "t_total": 1370.0, "cons_water": 9.933, "cons_gas": 129.343, "cons_t1": 367.02, "cons_t2": 151.67, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Январь 2020", "water": 45.0, "gas": 465.0, "t1": 1532.0, "t2": 500.0, "t_total": 2032.0, "cons_water": 12.0, "cons_gas": 124.0, "cons_t1": 479.0, "cons_t2": 183.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Апрель 2020", "water": 74.0, "gas": 670.0, "t1": 2308.0, "t2": 718.0, "t_total": 3026.0, "cons_water": 74.0, "cons_gas": 670.0, "cons_t1": 2308.0, "cons_t2": 718.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Май 2020", "water": 84.0, "gas": 704.0, "t1": 2493.0, "t2": 752.0, "t_total": 3245.0, "cons_water": 10.0, "cons_gas": 34.0, "cons_t1": 185.0, "cons_t2": 34.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Июнь 2020", "water": 95.0, "gas": 740.0, "t1": 2675.0, "t2": 778.0, "t_total": 3453.0, "cons_water": 11.0, "cons_gas": 36.0, "cons_t1": 182.0, "cons_t2": 26.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Июль 2020", "water": 106.0, "gas": 768.0, "t1": 2852.0, "t2": 821.0, "t_total": 3673.0, "cons_water": 11.0, "cons_gas": 28.0, "cons_t1": 177.0, "cons_t2": 43.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Август 2020", "water": 117.0, "gas": 800.0, "t1": 2948.0, "t2": 847.0, "t_total": 3795.0, "cons_water": 11.0, "cons_gas": 32.0, "cons_t1": 96.0, "cons_t2": 26.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Сентябрь 2020", "water": 130.0, "gas": 834.0, "t1": 3112.0, "t2": 887.0, "t_total": 3999.0, "cons_water": 13.0, "cons_gas": 34.0, "cons_t1": 164.0, "cons_t2": 40.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Октябрь 2020", "water": 138.0, "gas": 863.0, "t1": 3269.0, "t2": 912.0, "t_total": 4181.0, "cons_water": 8.0, "cons_gas": 29.0, "cons_t1": 157.0, "cons_t2": 25.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Ноябрь 2020", "water": 148.0, "gas": 914.0, "t1": 3469.0, "t2": 949.0, "t_total": 4418.0, "cons_water": 10.0, "cons_gas": 51.0, "cons_t1": 200.0, "cons_t2": 37.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "Декабрь 2020", "water": 156.0, "gas": 1044.0, "t1": 3700.0, "t2": 995.0, "t_total": 4695.0, "cons_water": 8.0, "cons_gas": 130.0, "cons_t1": 231.0, "cons_t2": 46.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "01/21", "water": 168.0, "gas": 1193.0, "t1": 3936.0, "t2": 1049.0, "t_total": 4985.0, "cons_water": 12.0, "cons_gas": 149.0, "cons_t1": 236.0, "cons_t2": 54.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "02/21", "water": 176.0, "gas": 1322.0, "t1": 4149.0, "t2": 1095.0, "t_total": 5244.0, "cons_water": 8.0, "cons_gas": 129.0, "cons_t1": 213.0, "cons_t2": 46.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "03/21", "water": 185.0, "gas": 1483.0, "t1": 4335.0, "t2": 1142.0, "t_total": 5477.0, "cons_water": 9.0, "cons_gas": 161.0, "cons_t1": 186.0, "cons_t2": 47.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "04/21", "water": 198.0, "gas": 1575.0, "t1": 4573.0, "t2": 1195.0, "t_total": 5768.0, "cons_water": 13.0, "cons_gas": 92.0, "cons_t1": 238.0, "cons_t2": 53.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "05/21", "water": 209.0, "gas": 1611.0, "t1": 4781.0, "t2": 1251.0, "t_total": 6032.0, "cons_water": 11.0, "cons_gas": 36.0, "cons_t1": 208.0, "cons_t2": 56.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "06/21", "water": 219.0, "gas": 1641.0, "t1": 4905.0, "t2": 1295.0, "t_total": 6200.0, "cons_water": 10.0, "cons_gas": 30.0, "cons_t1": 124.0, "cons_t2": 44.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "07/21", "water": 230.0, "gas": 1671.0, "t1": 5094.0, "t2": 1359.0, "t_total": 6453.0, "cons_water": 11.0, "cons_gas": 30.0, "cons_t1": 189.0, "cons_t2": 64.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "08/21", "water": 241.0, "gas": 1700.0, "t1": 5234.0, "t2": 1403.0, "t_total": 6637.0, "cons_water": 11.0, "cons_gas": 29.0, "cons_t1": 140.0, "cons_t2": 44.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "09/21", "water": 250.0, "gas": 1726.0, "t1": 5393.0, "t2": 1448.0, "t_total": 6841.0, "cons_water": 9.0, "cons_gas": 26.0, "cons_t1": 159.0, "cons_t2": 45.0, "cost_water": null, "cost_sewage": null, "cost_gas": null, "cost_t1": null, "cost_t2": null, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "10/21", "water": 260.0, "gas": 1754.0, "t1": 5601.0, "t2": 1499.0, "t_total": 7100.0, "cons_water": 10.0, "cons_gas": 28.0, "cons_t1": 208.0, "cons_t2": 51.0, "cost_water": 323.1, "cost_sewage": 406.9, "cost_gas": 169.96, "cost_t1": 688.48, "cost_t2": 103.02, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "11/21", "water": 270.0, "gas": 1799.0, "t1": 5832.0, "t2": 1545.0, "t_total": 7377.0, "cons_water": 10.0, "cons_gas": 45.0, "cons_t1": 231.0, "cons_t2": 46.0, "cost_water": 323.1, "cost_sewage": 406.9, "cost_gas": 273.15, "cost_t1": 764.61, "cost_t2": 92.92, "cap_repair": null, "invoice_sum": null, "total": null}, {"month": "12/21", "water": 281.0, "gas": 1920.0, "t1": 6058.0, "t2": 1596.0, "t_total": 7654.0, "cons_water": 11.0, "cons_gas": 121.0, "cons_t1": 226.0, "cons_t2": 51.0, "cost_water": 355.41, "cost_sewage": 447.59, "cost_gas": 734.47, "cost_t1": 748.06, "cost_t2": 103.02, "cap_repair": null, "invoice_sum": 2991.91, "total": null}, {"month": "01/22", "water": 292.0, "gas": 2098.0, "t1": 6289.0, "t2": 1653.0, "t_total": 7942.0, "cons_water": 11.0, "cons_gas": 178.0, "cons_t1": 231.0, "cons_t2": 57.0, "cost_water": 355.41, "cost_sewage": 447.59, "cost_gas": 1080.46, "cost_t1": 764.61, "cost_t2": 115.14, "cap_repair": null, "invoice_sum": 3020.58, "total": 4101.04}, {"month": "02/22", "water": 303.0, "gas": 2216.0, "t1": 6523.0, "t2": 1703.0, "t_total": 8226.0, "cons_water": 11.0, "cons_gas": 118.0, "cons_t1": 234.0, "cons_t2": 50.0, "cost_water": 355.41, "cost_sewage": 447.59, "cost_gas": 716.26, "cost_t1": 774.54, "cost_t2": 101.0, "cap_repair": null, "invoice_sum": 3016.37, "total": 3732.63}, {"month": "03/22", "water": 314.0, "gas": 2317.0, "t1": 6732.0, "t2": 1747.0, "t_total": 8479.0, "cons_water": 11.0, "cons_gas": 101.0, "cons_t1": 209.0, "cons_t2": 44.0, "cost_water": 355.41, "cost_sewage": 447.59, "cost_gas": 613.07, "cost_t1": 691.79, "cost_t2": 88.88, "cap_repair": null, "invoice_sum": 2921.5, "total": 3534.57}, {"month": "04/22", "water": 327.0, "gas": 2401.0, "t1": 6965.0, "t2": 1795.0, "t_total": 8760.0, "cons_water": 13.0, "cons_gas": 84.0, "cons_t1": 233.0, "cons_t2": 48.0, "cost_water": 420.03, "cost_sewage": 528.97, "cost_gas": 509.88, "cost_t1": 771.23, "cost_t2": 96.96, "cap_repair": null, "invoice_sum": 3155.02, "total": 3664.9}, {"month": "05/22", "water": 339.0, "gas": 2444.0, "t1": 7160.0, "t2": 1848.0, "t_total": 9008.0, "cons_water": 12.0, "cons_gas": 43.0, "cons_t1": 195.0, "cons_t2": 53.0, "cost_water": 387.72, "cost_sewage": 488.28, "cost_gas": 261.01, "cost_t1": 645.45, "cost_t2": 107.06, "cap_repair": null, "invoice_sum": 2966.34, "total": 3227.35}, {"month": "06/22", "water": 351.0, "gas": 2478.0, "t1": 7326.0, "t2": 1900.0, "t_total": 9226.0, "cons_water": 12.0, "cons_gas": 34.0, "cons_t1": 166.0, "cons_t2": 52.0, "cost_water": 387.72, "cost_sewage": 488.28, "cost_gas": 206.38, "cost_t1": 549.46, "cost_t2": 105.04, "cap_repair": null, "invoice_sum": 2868.33, "total": 3074.71}, {"month": "07/22", "water": 362.0, "gas": 2507.0, "t1": 7471.0, "t2": 1947.0, "t_total": 9418.0, "cons_water": 11.0, "cons_gas": 29.0, "cons_t1": 145.0, "cons_t2": 47.0, "cost_water": 368.06, "cost_sewage": 451.22, "cost_gas": 181.25, "cost_t1": 501.7, "cost_t2": 99.17, "cap_repair": null, "invoice_sum": 2837.34, "total": 3018.59}, {"month": "08/22", "water": 373.0, "gas": 2534.0, "t1": 7637.0, "t2": 1987.0, "t_total": 9624.0, "cons_water": 11.0, "cons_gas": 27.0, "cons_t1": 166.0, "cons_t2": 40.0, "cost_water": 368.06, "cost_sewage": 451.22, "cost_gas": 168.75, "cost_t1": 574.36, "cost_t2": 84.4, "cap_repair": null, "invoice_sum": 2895.23, "total": 3063.98}, {"month": "09/22", "water": 385.0, "gas": 2563.0, "t1": 7849.0, "t2": 2057.0, "t_total": 9906.0, "cons_water": 12.0, "cons_gas": 29.0, "cons_t1": 212.0, "cons_t2": 70.0, "cost_water": 401.52, "cost_sewage": 492.24, "cost_gas": 181.25, "cost_t1": 733.52, "cost_t2": 147.7, "cap_repair": null, "invoice_sum": 3192.17, "total": 3373.42}, {"month": "10/22", "water": 399.0, "gas": 2598.0, "t1": 8177.0, "t2": 2167.0, "t_total": 10344.0, "cons_water": 14.0, "cons_gas": 35.0, "cons_t1": 328.0, "cons_t2": 110.0, "cost_water": 468.44, "cost_sewage": 574.28, "cost_gas": 218.75, "cost_t1": 1134.88, "cost_t2": 232.1, "cap_repair": null, "invoice_sum": 3826.89, "total": 4045.64}, {"month": "11/22", "water": 412.0, "gas": 2662.0, "t1": 8543.0, "t2": 2299.0, "t_total": 10842.0, "cons_water": 13.0, "cons_gas": 64.0, "cons_t1": 366.0, "cons_t2": 132.0, "cost_water": 434.98, "cost_sewage": 533.26, "cost_gas": 400.0, "cost_t1": 1266.36, "cost_t2": 278.52, "cap_repair": null, "invoice_sum": 3930.31, "total": 4330.31}, {"month": "12/22", "water": 425.0, "gas": 2811.0, "t1": 8959.0, "t2": 2464.0, "t_total": 11423.0, "cons_water": 13.0, "cons_gas": 149.0, "cons_t1": 416.0, "cons_t2": 165.0, "cost_water": 466.57, "cost_sewage": 668.59, "cost_gas": 1010.22, "cost_t1": 1568.32, "cost_t2": 379.5, "cap_repair": null, "invoice_sum": 4441.668, "total": 5451.888}, {"month": "01/23", "water": 436.0, "gas": 2968.0, "t1": 9414.0, "t2": 2630.0, "t_total": 12044.0, "cons_water": 11.0, "cons_gas": 157.0, "cons_t1": 455.0, "cons_t2": 166.0, "cost_water": 394.79, "cost_sewage": 565.73, "cost_gas": 1064.46, "cost_t1": 1715.35, "cost_t2": 381.8, "cap_repair": null, "invoice_sum": 4567.116, "total": 5631.576}, {"month": "02/23", "water": 450.0, "gas": 3115.0, "t1": 9877.0, "t2": 2801.0, "t_total": 12678.0, "cons_water": 14.0, "cons_gas": 147.0, "cons_t1": 463.0, "cons_t2": 171.0, "cost_water": 502.46, "cost_sewage": 720.02, "cost_gas": 996.66, "cost_t1": 1745.51, "cost_t2": 393.3, "cap_repair": null, "invoice_sum": 4870.736, "total": 5867.396}, {"month": "03/23", "water": 461.0, "gas": 3205.0, "t1": 10183.0, "t2": 2922.0, "t_total": 13105.0, "cons_water": 11.0, "cons_gas": 90.0, "cons_t1": 306.0, "cons_t2": 121.0, "cost_water": 394.79, "cost_sewage": 565.73, "cost_gas": 610.2, "cost_t1": 1153.62, "cost_t2": 278.3, "cap_repair": null, "invoice_sum": 3901.8860000000004, "total": 4512.086}, {"month": "04/23", "water": 473.0, "gas": 3248.0, "t1": 10455.0, "t2": 3031.0, "t_total": 13486.0, "cons_water": 12.0, "cons_gas": 43.0, "cons_t1": 272.0, "cons_t2": 109.0, "cost_water": 430.68, "cost_sewage": 617.16, "cost_gas": 291.54, "cost_t1": 1025.44, "cost_t2": 250.7, "cap_repair": null, "invoice_sum": 3833.4259999999995, "total": 4124.966}, {"month": "05/23", "water": 484.0, "gas": 3280.0, "t1": 10653.0, "t2": 3095.0, "t_total": 13748.0, "cons_water": 11.0, "cons_gas": 32.0, "cons_t1": 198.0, "cons_t2": 64.0, "cost_water": 394.79, "cost_sewage": 565.73, "cost_gas": 216.96, "cost_t1": 746.46, "cost_t2": 147.2, "cap_repair": null, "invoice_sum": 3363.626, "total": 3580.586}, {"month": "06/23", "water": 496.0, "gas": 3314.0, "t1": 10802.0, "t2": 3137.0, "t_total": 13939.0, "cons_water": 12.0, "cons_gas": 34.0, "cons_t1": 149.0, "cons_t2": 42.0, "cost_water": 430.68, "cost_sewage": 617.16, "cost_gas": 230.52, "cost_t1": 561.73, "cost_t2": 96.6, "cap_repair": null, "invoice_sum": 3215.616, "total": 3446.136}, {"month": "07/23", "water": 506.0, "gas": 3341.0, "t1": 10909.0, "t2": 3168.0, "t_total": 14077.0, "cons_water": 10.0, "cons_gas": 27.0, "cons_t1": 107.0, "cons_t2": 31.0, "cost_water": 358.9, "cost_sewage": 514.3, "cost_gas": 183.06, "cost_t1": 403.39, "cost_t2": 71.3, "cap_repair": null, "invoice_sum": 4009.26, "total": 4192.32}, {"month": "08/23", "water": 516.0, "gas": 3370.0, "t1": 11066.0, "t2": 3231.0, "t_total": 14297.0, "cons_water": 10.0, "cons_gas": 29.0, "cons_t1": 157.0, "cons_t2": 63.0, "cost_water": 358.9, "cost_sewage": 514.3, "cost_gas": 196.62, "cost_t1": 591.89, "cost_t2": 144.9, "cap_repair": null, "invoice_sum": 3220.49, "total": 3417.11}, {"month": "09/23", "water": 530.0, "gas": 3407.0, "t1": 11233.0, "t2": 3283.0, "t_total": 14516.0, "cons_water": 14.0, "cons_gas": 37.0, "cons_t1": 167.0, "cons_t2": 52.0, "cost_water": 502.46, "cost_sewage": 720.02, "cost_gas": 250.86, "cost_t1": 629.59, "cost_t2": 119.6, "cap_repair": 325.26, "invoice_sum": 3206.384, "total": 3782.504}, {"month": "10/23", "water": 543.0, "gas": 3440.0, "t1": 11436.0, "t2": 3341.0, "t_total": 14777.0, "cons_water": 13.0, "cons_gas": 33.0, "cons_t1": 203.0, "cons_t2": 58.0, "cost_water": 466.57, "cost_sewage": 668.59, "cost_gas": 223.74, "cost_t1": 765.31, "cost_t2": 133.4, "cap_repair": 325.26, "invoice_sum": 3268.5840000000007, "total": 3817.584}, {"month": "11/23", "water": 555.0, "gas": 3491.0, "t1": 11830.0, "t2": 3503.0, "t_total": 15333.0, "cons_water": 12.0, "cons_gas": 51.0, "cons_t1": 394.0, "cons_t2": 162.0, "cost_water": 430.68, "cost_sewage": 617.16, "cost_gas": 345.78, "cost_t1": 1485.38, "cost_t2": 372.6, "cap_repair": 325.26, "invoice_sum": 4140.534000000001, "total": 4811.574}, {"month": "12/23", "water": 565.0, "gas": 3573.0, "t1": 12286.0, "t2": 3673.0, "t_total": 15959.0, "cons_water": 10.0, "cons_gas": 82.0, "cons_t1": 456.0, "cons_t2": 170.0, "cost_water": 358.9, "cost_sewage": 514.3, "cost_gas": 555.96, "cost_t1": 1719.12, "cost_t2": 391.0, "cap_repair": 325.26, "invoice_sum": 4218.034000000001, "total": 5099.254}, {"month": "01/24", "water": 577.0, "gas": 3670.0, "t1": 12758.0, "t2": 3855.0, "t_total": 16613.0, "cons_water": 12.0, "cons_gas": 97.0, "cons_t1": 472.0, "cons_t2": 182.0, "cost_water": 430.68, "cost_sewage": 617.16, "cost_gas": 657.66, "cost_t1": 1779.44, "cost_t2": 418.6, "cap_repair": 360.36, "invoice_sum": 4608.78, "total": 5626.8}, {"month": "02/24", "water": 588.0, "gas": 3766.0, "t1": 13194.0, "t2": 4032.0, "t_total": 17226.0, "cons_water": 11.0, "cons_gas": 96.0, "cons_t1": 436.0, "cons_t2": 177.0, "cost_water": 394.79, "cost_sewage": 565.73, "cost_gas": 650.88, "cost_t1": 1643.72, "cost_t2": 407.1, "cap_repair": 360.36, "invoice_sum": 4374.24, "total": 5385.48}, {"month": "03/24", "water": 597.0, "gas": 3825.0, "t1": 13577.0, "t2": 4190.0, "t_total": 17767.0, "cons_water": 9.0, "cons_gas": 59.0, "cons_t1": 383.0, "cons_t2": 158.0, "cost_water": 323.01, "cost_sewage": 462.87, "cost_gas": 400.02, "cost_t1": 1443.91, "cost_t2": 363.4, "cap_repair": 360.36, "invoice_sum": 3956.09, "total": 4716.47, "note": "ТО ВКГО 1907,19"}, {"month": "04/24", "water": 608.0, "gas": 3857.0, "t1": 13912.0, "t2": 4331.0, "t_total": 18243.0, "cons_water": 11.0, "cons_gas": 32.0, "cons_t1": 335.0, "cons_t2": 141.0, "cost_water": 394.79, "cost_sewage": 565.73, "cost_gas": 216.96, "cost_t1": 1262.95, "cost_t2": 324.3, "cap_repair": 360.36, "invoice_sum": 3910.67, "total": 4487.99}, {"month": "05/24", "water": 617.0, "gas": 3876.0, "t1": 14136.0, "t2": 4391.0, "t_total": 18527.0, "cons_water": 9.0, "cons_gas": 19.0, "cons_t1": 224.0, "cons_t2": 60.0, "cost_water": 323.01, "cost_sewage": 462.87, "cost_gas": 128.82, "cost_t1": 844.48, "cost_t2": 138.0, "cap_repair": 360.36, "invoice_sum": 3131.26, "total": 3620.44}, {"month": "06/24", "water": 625.0, "gas": 3894.0, "t1": 14300.0, "t2": 4440.0, "t_total": 18740.0, "cons_water": 8.0, "cons_gas": 18.0, "cons_t1": 164.0, "cons_t2": 49.0, "cost_water": 287.12, "cost_sewage": 411.44, "cost_gas": 122.04, "cost_t1": 618.28, "cost_t2": 112.7, "cap_repair": 360.36, "invoice_sum": 2792.4399999999996, "total": 3274.84}, {"month": "07/24", "water": 637.0, "gas": 3919.0, "t1": 14493.0, "t2": 4506.0, "t_total": 18999.0, "cons_water": 12.0, "cons_gas": 25.0, "cons_t1": 193.0, "cons_t2": 66.0, "cost_water": 445.2, "cost_sewage": 839.76, "cost_gas": 186.75, "cost_t1": 793.23, "cost_t2": 165.0, "cap_repair": 360.36, "invoice_sum": 3606.09, "total": 4153.2}, {"month": "08/24", "water": 649.0, "gas": 3949.0, "t1": 14666.0, "t2": 4557.0, "t_total": 19223.0, "cons_water": 12.0, "cons_gas": 30.0, "cons_t1": 173.0, "cons_t2": 51.0, "cost_water": 445.2, "cost_sewage": 839.76, "cost_gas": 224.1, "cost_t1": 711.03, "cost_t2": 127.5, "cap_repair": 360.36, "invoice_sum": 3486.3900000000003, "total": 4070.85}, {"month": "09/24", "water": 660.0, "gas": 3975.0, "t1": 14849.0, "t2": 4606.0, "t_total": 19455.0, "cons_water": 11.0, "cons_gas": 26.0, "cons_t1": 183.0, "cons_t2": 49.0, "cost_water": 408.1, "cost_sewage": 769.78, "cost_gas": 194.22, "cost_t1": 752.13, "cost_t2": 122.5, "cap_repair": 360.36, "invoice_sum": 3415.41, "total": 3969.99}, {"month": "10/24", "water": 671.0, "gas": 4003.0, "t1": 15031.0, "t2": 4659.0, "t_total": 19690.0, "cons_water": 11.0, "cons_gas": 28.0, "cons_t1": 182.0, "cons_t2": 53.0, "cost_water": 408.1, "cost_sewage": 769.78, "cost_gas": 209.16, "cost_t1": 748.02, "cost_t2": 132.5, "cap_repair": 360.36, "invoice_sum": 3417.088, "total": 3986.608}, {"month": "11/24", "water": 681.0, "gas": 4041.0, "t1": 15304.0, "t2": 4759.0, "t_total": 20063.0, "cons_water": 10.0, "cons_gas": 38.0, "cons_t1": 273.0, "cons_t2": 100.0, "cost_water": 371.0, "cost_sewage": 699.8, "cost_gas": 283.86, "cost_t1": 1122.03, "cost_t2": 250.0, "cap_repair": 360.36, "invoice_sum": 3801.518, "total": 4445.738}, {"month": "12/24", "water": 691.0, "gas": 4082.0, "t1": 15669.0, "t2": 4903.0, "t_total": 20572.0, "cons_water": 10.0, "cons_gas": 41.0, "cons_t1": 365.0, "cons_t2": 144.0, "cost_water": 371.0, "cost_sewage": 699.8, "cost_gas": 306.27, "cost_t1": 1500.15, "cost_t2": 360.0, "cap_repair": 360.36, "invoice_sum": 4289.638, "total": 4956.268}, {"month": "01/25", "water": 702.0, "gas": 4135.0, "t1": 16075.0, "t2": 5057.0, "t_total": 21132.0, "cons_water": 11.0, "cons_gas": 53.0, "cons_t1": 406.0, "cons_t2": 154.0, "cost_water": 408.1, "cost_sewage": 769.78, "cost_gas": 395.91, "cost_t1": 1668.66, "cost_t2": 385.0, "cap_repair": 396.4, "invoice_sum": 4842.84, "total": 5635.15}, {"month": "02/25", "water": 711.0, "gas": 4183.0, "t1": 16424.0, "t2": 5201.0, "t_total": 21625.0, "cons_water": 9.0, "cons_gas": 48.0, "cons_t1": 349.0, "cons_t2": 144.0, "cost_water": 333.9, "cost_sewage": 629.82, "cost_gas": 358.56, "cost_t1": 1434.39, "cost_t2": 360.0, "cap_repair": 396.4, "invoice_sum": 4369.41, "total": 5124.37}, {"month": "03/25", "water": 721.0, "gas": 4231.0, "t1": 16737.0, "t2": 5331.0, "t_total": 22068.0, "cons_water": 10.0, "cons_gas": 48.0, "cons_t1": 313.0, "cons_t2": 130.0, "cost_water": 371.0, "cost_sewage": 699.8, "cost_gas": 358.56, "cost_t1": 1286.43, "cost_t2": 325.0, "cap_repair": 396.4, "invoice_sum": 4293.53, "total": 5048.49}, {"month": "04/25", "water": 733.0, "gas": 4260.0, "t1": 16906.0, "t2": 5382.0, "t_total": 22288.0, "cons_water": 12.0, "cons_gas": 29.0, "cons_t1": 169.0, "cons_t2": 51.0, "cost_water": 445.2, "cost_sewage": 839.76, "cost_gas": 216.63, "cost_t1": 694.59, "cost_t2": 127.5, "cap_repair": 396.4, "invoice_sum": 3718.35, "total": 4331.38, "note": "1786,02 ТО ВКГО"}, {"month": "05/25", "water": 742.0, "gas": 4282.0, "t1": 17048.0, "t2": 5427.0, "t_total": 22475.0, "cons_water": 9.0, "cons_gas": 22.0, "cons_t1": 142.0, "cons_t2": 45.0, "cost_water": 333.9, "cost_sewage": 629.82, "cost_gas": 164.34, "cost_t1": 583.62, "cost_t2": 112.5, "cap_repair": 396.4, "invoice_sum": 3271.14, "total": 3831.88}, {"month": "06/25", "water": 750.0, "gas": 4304.0, "t1": 17211.0, "t2": 5472.0, "t_total": 22683.0, "cons_water": 8.0, "cons_gas": 22.0, "cons_t1": 163.0, "cons_t2": 45.0, "cost_water": 296.8, "cost_sewage": 559.84, "cost_gas": 164.34, "cost_t1": 669.93, "cost_t2": 112.5, "cap_repair": 396.4, "invoice_sum": 3250.37, "total": 3811.11}, {"month": "07/25", "water": 759.0, "gas": 4326.0, "t1": 17378.0, "t2": 5534.0, "t_total": 22912.0, "cons_water": 9.0, "cons_gas": 22.0, "cons_t1": 167.0, "cons_t2": 62.0, "cost_water": 367.74, "cost_sewage": 743.49, "cost_gas": 185.02, "cost_t1": 804.94, "cost_t2": 182.28, "cap_repair": 396.4, "invoice_sum": 3709.75, "total": 4291.17}, {"month": "08/25", "water": 770.0, "gas": 4355.0, "t1": 17556.0, "t2": 5595.0, "t_total": 23151.0, "cons_water": 11.0, "cons_gas": 29.0, "cons_t1": 178.0, "cons_t2": 61.0, "cost_water": 449.46, "cost_sewage": 908.71, "cost_gas": 243.89, "cost_t1": 857.96, "cost_t2": 179.34, "cap_repair": 396.4, "invoice_sum": 4006.77, "total": 4647.06}, {"month": "09/25", "water": 781.0, "gas": 4379.0, "t1": 17724.0, "t2": 5640.0, "t_total": 23364.0, "cons_water": 11.0, "cons_gas": 24.0, "cons_t1": 168.0, "cons_t2": 45.0, "cost_water": 449.46, "cost_sewage": 908.71, "cost_gas": 201.84, "cost_t1": 809.76, "cost_t2": 132.3, "cap_repair": 396.4, "invoice_sum": 3911.53, "total": 4509.77}, {"month": "10/25", "water": 790.0, "gas": 4409.0, "t1": 17902.0, "t2": 5689.0, "t_total": 23591.0, "cons_water": 9.0, "cons_gas": 30.0, "cons_t1": 178.0, "cons_t2": 49.0, "cost_water": 367.74, "cost_sewage": 743.49, "cost_gas": 252.3, "cost_t1": 857.96, "cost_t2": 144.06, "cap_repair": 396.4, "invoice_sum": 3724.55, "total": 4373.25}, {"month": "11/25", "water": 801.0, "gas": 4473.0, "t1": 18164.0, "t2": 5787.0, "t_total": 23951.0, "cons_water": 11.0, "cons_gas": 64.0, "cons_t1": 262.0, "cons_t2": 98.0, "cost_water": 449.46, "cost_sewage": 908.71, "cost_gas": 538.24, "cost_t1": 1262.84, "cost_t2": 288.12, "cap_repair": 396.4, "invoice_sum": 4520.43, "total": 5455.07}, {"month": "12/25", "water": 811.0, "gas": 4552.0, "t1": 18466.0, "t2": 5894.0, "t_total": 24360.0, "cons_water": 10.0, "cons_gas": 79.0, "cons_t1": 302.0, "cons_t2": 107.0, "cost_water": 408.6, "cost_sewage": 826.1, "cost_gas": 664.39, "cost_t1": 1455.64, "cost_t2": 314.58, "cap_repair": 396.4, "invoice_sum": 4616.22, "total": 5677.01}, {"month": "01/26", "water": 821.0, "gas": 4655.0, "t1": 18798.0, "t2": 6014.0, "t_total": 24812.0, "cons_water": 10.0, "cons_gas": 103.0, "cons_t1": 332.0, "cons_t2": 120.0, "cost_water": 408.6, "cost_sewage": 839.8, "cost_gas": 880.65, "cost_t1": 1626.8, "cost_t2": 358.8, "cap_repair": 475.49, "invoice_sum": 4845.3, "total": 6201.44}, {"month": "02/26", "water": 831.0, "gas": 4760.0, "t1": 19130.0, "t2": 6140.0, "t_total": 25270.0, "cons_water": 10.0, "cons_gas": 105.0, "cons_t1": 332.0, "cons_t2": 126.0, "cost_water": 408.6, "cost_sewage": 839.8, "cost_gas": 897.75, "cost_t1": 1626.8, "cost_t2": 376.74, "cap_repair": 475.49, "invoice_sum": 4863.24, "total": 6236.48, "note": "1751,89 ТО ВКГО"}, {"month": "03/26", "water": 839.0, "gas": 4866.0, "t1": 19375.0, "t2": 6243.0, "t_total": 25618.0, "cons_water": 8.0, "cons_gas": 106.0, "cons_t1": 245.0, "cons_t2": 103.0, "cost_water": 326.88, "cost_sewage": 671.84, "cost_gas": 906.3, "cost_t1": 1200.5, "cost_t2": 307.97, "cap_repair": 475.49, "invoice_sum": 4118.49, "total": 5500.28}, {"month": "04/26", "water": 851.0, "gas": 4907.0, "t1": 19563.0, "t2": 6305.0, "t_total": 25868.0, "cons_water": 12.0, "cons_gas": 41.0, "cons_t1": 188.0, "cons_t2": 62.0, "cost_water": 490.32, "cost_sewage": 1007.76, "cost_gas": 350.55, "cost_t1": 921.2, "cost_t2": 185.38, "cap_repair": 475.49, "invoice_sum": 4215.96, "total": 5042.0}, {"month": "05/26", "water": 860.0, "gas": 4933.0, "t1": 19704.0, "t2": 6353.0, "t_total": 26057.0, "cons_water": 9.0, "cons_gas": 26.0, "cons_t1": 141.0, "cons_t2": 48.0, "cost_water": 367.74, "cost_sewage": 755.82, "cost_gas": 222.3, "cost_t1": 690.9, "cost_t2": 143.52, "cap_repair": 475.49, "invoice_sum": 3569.28, "total": 4267.07}, {"month": "06/26", "water": 869.0, "gas": 4958.0, "t1": 19855.0, "t2": 6413.0, "t_total": 26268.0, "cons_water": 9.0, "cons_gas": 25.0, "cons_t1": 151.0, "cons_t2": 60.0, "cost_water": 367.74, "cost_sewage": 755.82, "cost_gas": 213.75, "cost_t1": 739.9, "cost_t2": 179.4, "cap_repair": 475.49, "invoice_sum": 3654.16, "total": 4343.4}, {"month": "07/26", "water": 878.0, "gas": 4982.0, "t1": 20031.0, "t2": 6476.0, "t_total": 26507.0, "cons_water": 9.0, "cons_gas": 24.0, "cons_t1": 176.0, "cons_t2": 63.0, "cost_water": 367.74, "cost_sewage": 755.82, "cost_gas": 205.2, "cost_t1": 862.4, "cost_t2": 188.37, "cap_repair": 475.49, "invoice_sum": 3785.63, "total": 4466.32}, {"month": "08/26", "water": 892.0, "gas": 5006.0, "t1": 20242.0, "t2": 6544.0, "t_total": 26786.0, "cons_water": 14.0, "cons_gas": 24.0, "cons_t1": 211.0, "cons_t2": 68.0, "cost_water": 572.04, "cost_sewage": 1175.72, "cost_gas": 205.2, "cost_t1": 1033.9, "cost_t2": 203.32, "cap_repair": 475.49, "invoice_sum": 4596.28, "total": 5276.97}, {"month": "09/26", "water": 903.0, "gas": 5032.0, "t1": 20401.0, "t2": 6601.0, "t_total": 27002.0, "cons_water": 11.0, "cons_gas": 26.0, "cons_t1": 159.0, "cons_t2": 57.0, "cost_water": 449.46, "cost_sewage": 923.78, "cost_gas": 222.3, "cost_t1": 779.1, "cost_t2": 170.43, "cap_repair": 475.49, "invoice_sum": 3934.07, "total": 4631.86}], "kirby": [{"month": "01/23", "elec": null, "gas": null, "cons_elec": null, "cons_gas": null, "paid_rent": 4500.0, "paid_gas": 3500.0}, {"month": "02/23", "elec": 74930.0, "gas": 41600.0, "cons_elec": 1100.0, "cons_gas": 540.0, "paid_rent": 3787.98, "paid_gas": 2169.6}, {"month": "03/23", "elec": 75680.0, "gas": 41920.0, "cons_elec": 750.0, "cons_gas": 320.0, "paid_rent": 3492.6, "paid_gas": 2113.08}, {"month": "04/23", "elec": 76520.0, "gas": 42230.0, "cons_elec": 840.0, "cons_gas": 310.0, "paid_rent": 3413.88, "paid_gas": 799.29}, {"month": "05/23", "elec": 77241.0, "gas": 42427.0, "cons_elec": 721.0, "cons_gas": 197.0, "paid_rent": 3669.91, "paid_gas": 1322.14}, {"month": "06/23", "elec": 77890.0, "gas": 42520.0, "cons_elec": 649.0, "cons_gas": 93.0, "paid_rent": 6635.21, "paid_gas": 603.21}, {"month": "07/23", "elec": 78435.0, "gas": 42555.0, "cons_elec": 545.0, "cons_gas": 35.0, "paid_rent": 1308.31, "paid_gas": 112.23}, {"month": "08/23", "elec": 79100.0, "gas": 42559.0, "cons_elec": 665.0, "cons_gas": 4.0, "paid_rent": 2138.72, "paid_gas": 168.96}, {"month": "09/23", "elec": 79648.0, "gas": 42646.0, "cons_elec": 548.0, "cons_gas": 87.0, "paid_rent": 2643.08, "paid_gas": 0.0}, {"month": "10/23", "elec": 80149.0, "gas": 42815.0, "cons_elec": 501.0, "cons_gas": 169.0, "paid_rent": 2488.92, "paid_gas": 0.0}, {"month": "11/23", "elec": 80675.0, "gas": 43175.0, "cons_elec": 526.0, "cons_gas": 360.0, "paid_rent": 2570.92, "paid_gas": 2134.47}, {"month": "12/23", "elec": 81270.0, "gas": 43660.0, "cons_elec": 595.0, "cons_gas": 485.0, "paid_rent": 3285.14, "paid_gas": 3288.3}, {"month": "01/24", "elec": 81850.0, "gas": 44240.0, "cons_elec": 580.0, "cons_gas": 580.0, "paid_rent": 2325.82, "paid_gas": 3932.4}, {"month": "02/24", "elec": 82655.0, "gas": 44800.0, "cons_elec": 805.0, "cons_gas": 560.0, "paid_rent": 5211.4, "paid_gas": 3796.8}, {"month": "03/24", "elec": 83572.0, "gas": 45316.0, "cons_elec": 917.0, "cons_gas": 516.0, "paid_rent": 2259.4, "paid_gas": 3498.48}, {"month": "04/24", "elec": 84550.0, "gas": 45710.0, "cons_elec": 978.0, "cons_gas": 394.0, "paid_rent": 4119.16, "paid_gas": 2671.32}, {"month": "05/24", "elec": 85262.0, "gas": 45922.0, "cons_elec": 712.0, "cons_gas": 212.0, "paid_rent": 3706.07, "paid_gas": 1437.36}, {"month": "06/24", "elec": 85880.0, "gas": 46040.0, "cons_elec": 618.0, "cons_gas": 118.0, "paid_rent": 3397.75, "paid_gas": 800.04}, {"month": "07/24", "elec": 86477.0, "gas": 46042.0, "cons_elec": 597.0, "cons_gas": 2.0, "paid_rent": 3549.63, "paid_gas": 14.94}, {"month": "08/24", "elec": 87070.0, "gas": 46050.0, "cons_elec": 593.0, "cons_gas": 8.0, "paid_rent": 3535.35, "paid_gas": 59.76}, {"month": "09/24", "elec": 87617.0, "gas": 46115.0, "cons_elec": 547.0, "cons_gas": 65.0, "paid_rent": 2896.25, "paid_gas": 485.55}, {"month": "10/24", "elec": 88112.0, "gas": 46248.0, "cons_elec": 495.0, "cons_gas": 133.0, "paid_rent": 2710.61, "paid_gas": 993.51}, {"month": "11/24", "elec": 88772.0, "gas": 46592.0, "cons_elec": 660.0, "cons_gas": 344.0, "paid_rent": 3299.66, "paid_gas": 2569.68}, {"month": "12/24", "elec": 89354.0, "gas": 46993.0, "cons_elec": 582.0, "cons_gas": 401.0, "paid_rent": 3021.2, "paid_gas": 2995.47}, {"month": "01/25", "elec": 90110.0, "gas": 47422.0, "cons_elec": 756.0, "cons_gas": 429.0, "paid_rent": 3642.38, "paid_gas": 3204.63}, {"month": "02/25", "elec": 90820.0, "gas": 47890.0, "cons_elec": 710.0, "cons_gas": 468.0, "paid_rent": 3478.16, "paid_gas": 3495.96}, {"month": "03/25", "elec": 91500.0, "gas": 48370.0, "cons_elec": 680.0, "cons_gas": 480.0, "paid_rent": 3371.06, "paid_gas": 3585.6}, {"month": "04/25", "elec": 91920.0, "gas": 48630.0, "cons_elec": 420.0, "cons_gas": 260.0, "paid_rent": 3302.05, "paid_gas": 1942.2}, {"month": "05/25", "elec": 92466.0, "gas": 48839.0, "cons_elec": 546.0, "cons_gas": 209.0, "paid_rent": 2508.37, "paid_gas": 1561.23}, {"month": "06/25", "elec": 92985.0, "gas": 48898.0, "cons_elec": 519.0, "cons_gas": 59.0, "paid_rent": 3617.46, "paid_gas": 440.73}, {"month": "07/25", "elec": 93534.0, "gas": 48905.0, "cons_elec": 549.0, "cons_gas": 7.0, "paid_rent": 3453.09, "paid_gas": 58.87}, {"month": "08/25", "elec": 94051.0, "gas": 48912.0, "cons_elec": 517.0, "cons_gas": 7.0, "paid_rent": 3725.44, "paid_gas": 58.87}, {"month": "09/25", "elec": 94608.0, "gas": 48931.0, "cons_elec": 557.0, "cons_gas": 19.0, "paid_rent": 3370.03, "paid_gas": 159.79}, {"month": "10/25", "elec": 95126.0, "gas": 49099.0, "cons_elec": 518.0, "cons_gas": 168.0, "paid_rent": 3206.62, "paid_gas": 1412.88}, {"month": "11/25", "elec": 95702.0, "gas": 49409.0, "cons_elec": 576.0, "cons_gas": 310.0, "paid_rent": 3449.64, "paid_gas": 2607.1}, {"month": "12/25", "elec": 96210.0, "gas": 49730.0, "cons_elec": 508.0, "cons_gas": 321.0, "paid_rent": 3945.55, "paid_gas": 2699.61}, {"month": "01/26", "elec": 97500.0, "gas": 50220.0, "cons_elec": 1290.0, "cons_gas": 490.0, "paid_rent": 7316.69, "paid_gas": 4189.5}, {"month": "02/26", "elec": 99068.0, "gas": 50741.0, "cons_elec": 1568.0, "cons_gas": 521.0, "paid_rent": 8500.97, "paid_gas": 4454.55}, {"month": "03/26", "elec": 99885.0, "gas": 51230.0, "cons_elec": 817.0, "cons_gas": 489.0, "paid_rent": 5301.71, "paid_gas": 4180.95}, {"month": "04/26", "elec": 100630.0, "gas": 51550.0, "cons_elec": 745.0, "cons_gas": 320.0, "paid_rent": 4994.99, "paid_gas": 2979.3}, {"month": "05/26", "elec": 101251.0, "gas": 51779.0, "cons_elec": 621.0, "cons_gas": 229.0, "paid_rent": 4989.76, "paid_gas": 1957.95}, {"month": "06/26", "elec": 101812.0, "gas": 51850.0, "cons_elec": 561.0, "cons_gas": 71.0, "paid_rent": 4734.16, "paid_gas": 607.05}, {"month": "07/26", "elec": 102398.0, "gas": 51874.0, "cons_elec": 586.0, "cons_gas": 24.0, "paid_rent": 6037.72, "paid_gas": 205.2}, {"month": "08/26", "elec": 103008.0, "gas": 51885.0, "cons_elec": 610.0, "cons_gas": 11.0, "paid_rent": 3000.34, "paid_gas": 94.05}, {"month": "09/26", "elec": 103586.0, "gas": 51971.0, "cons_elec": 578.0, "cons_gas": 86.0, "paid_rent": 2477.33, "paid_gas": 735.3}]};
+
+    const DEFAULT_DATA = EMBEDDED_DATA;
+    const EMBEDDED_PAYMENTS = {"69": {"12/21": {"paid": 2991.91, "manual": true}, "gas_12/21": {"paid": 734.47, "manual": true, "type": "gas"}, "01/22": {"paid": 4101.04, "manual": true}, "gas_01/22": {"paid": 1080.46, "manual": true, "type": "gas"}, "02/22": {"paid": 3732.63, "manual": true}, "gas_02/22": {"paid": 716.26, "manual": true, "type": "gas"}, "03/22": {"paid": 3534.57, "manual": true}, "gas_03/22": {"paid": 613.07, "manual": true, "type": "gas"}, "04/22": {"paid": 3664.9, "manual": true}, "gas_04/22": {"paid": 509.88, "manual": true, "type": "gas"}, "05/22": {"paid": 3227.35, "manual": true}, "gas_05/22": {"paid": 261.01, "manual": true, "type": "gas"}, "06/22": {"paid": 3074.71, "manual": true}, "gas_06/22": {"paid": 206.38, "manual": true, "type": "gas"}, "07/22": {"paid": 3018.59, "manual": true}, "gas_07/22": {"paid": 181.25, "manual": true, "type": "gas"}, "08/22": {"paid": 3063.98, "manual": true}, "gas_08/22": {"paid": 168.75, "manual": true, "type": "gas"}, "09/22": {"paid": 3373.42, "manual": true}, "gas_09/22": {"paid": 181.25, "manual": true, "type": "gas"}, "10/22": {"paid": 4045.64, "manual": true}, "gas_10/22": {"paid": 218.75, "manual": true, "type": "gas"}, "11/22": {"paid": 4330.31, "manual": true}, "gas_11/22": {"paid": 400.0, "manual": true, "type": "gas"}, "12/22": {"paid": 5451.89, "manual": true}, "gas_12/22": {"paid": 1010.22, "manual": true, "type": "gas"}, "01/23": {"paid": 5631.58, "manual": true}, "gas_01/23": {"paid": 1064.46, "manual": true, "type": "gas"}, "02/23": {"paid": 5867.4, "manual": true}, "gas_02/23": {"paid": 996.66, "manual": true, "type": "gas"}, "03/23": {"paid": 4512.09, "manual": true}, "gas_03/23": {"paid": 610.2, "manual": true, "type": "gas"}, "04/23": {"paid": 4124.97, "manual": true}, "gas_04/23": {"paid": 291.54, "manual": true, "type": "gas"}, "05/23": {"paid": 3580.59, "manual": true}, "gas_05/23": {"paid": 216.96, "manual": true, "type": "gas"}, "06/23": {"paid": 3446.14, "manual": true}, "gas_06/23": {"paid": 230.52, "manual": true, "type": "gas"}, "07/23": {"paid": 2857.33, "manual": true}, "gas_07/23": {"paid": 183.06, "manual": true, "type": "gas"}, "08/23": {"paid": 3417.11, "manual": true}, "gas_08/23": {"paid": 196.62, "manual": true, "type": "gas"}, "09/23": {"paid": 3206.34, "manual": true}, "gas_09/23": {"paid": 250.86, "manual": true, "type": "gas"}, "cap_09/23": {"paid": 325.26, "manual": true, "type": "cap_repair"}, "10/23": {"paid": 3206.34, "manual": true}, "gas_10/23": {"paid": 223.74, "manual": true, "type": "gas"}, "cap_10/23": {"paid": 325.26, "manual": true, "type": "cap_repair"}, "11/23": {"paid": 4811.57, "manual": true}, "gas_11/23": {"paid": 345.78, "manual": true, "type": "gas"}, "cap_11/23": {"paid": 325.26, "manual": true, "type": "cap_repair"}, "12/23": {"paid": 5099.25, "manual": true}, "gas_12/23": {"paid": 555.96, "manual": true, "type": "gas"}, "cap_12/23": {"paid": 325.26, "manual": true, "type": "cap_repair"}, "01/24": {"paid": 5626.8, "manual": true}, "gas_01/24": {"paid": 657.66, "manual": true, "type": "gas"}, "cap_01/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "02/24": {"paid": 5385.48, "manual": true}, "gas_02/24": {"paid": 650.88, "manual": true, "type": "gas"}, "cap_02/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "03/24": {"paid": 4716.47, "manual": true}, "gas_03/24": {"paid": 400.02, "manual": true, "type": "gas"}, "cap_03/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "04/24": {"paid": 4487.99, "manual": true}, "gas_04/24": {"paid": 216.96, "manual": true, "type": "gas"}, "cap_04/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "05/24": {"paid": 4274.93, "manual": true}, "gas_05/24": {"paid": 128.82, "manual": true, "type": "gas"}, "cap_05/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "06/24": {"paid": 3274.84, "manual": true}, "gas_06/24": {"paid": 122.04, "manual": true, "type": "gas"}, "cap_06/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "07/24": {"paid": 2742.48, "manual": true}, "gas_07/24": {"paid": 186.75, "manual": true, "type": "gas"}, "cap_07/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "08/24": {"paid": 2939.37, "manual": true}, "gas_08/24": {"paid": 224.1, "manual": true, "type": "gas"}, "cap_08/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "09/24": {"paid": 3089.44, "manual": true}, "gas_09/24": {"paid": 194.22, "manual": true, "type": "gas"}, "cap_09/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "10/24": {"paid": 3986.61, "manual": true}, "gas_10/24": {"paid": 209.16, "manual": true, "type": "gas"}, "cap_10/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "11/24": {"paid": 3670.57, "manual": true}, "gas_11/24": {"paid": 283.86, "manual": true, "type": "gas"}, "cap_11/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "12/24": {"paid": 4433.29, "manual": true}, "gas_12/24": {"paid": 306.27, "manual": true, "type": "gas"}, "cap_12/24": {"paid": 360.36, "manual": true, "type": "cap_repair"}, "01/25": {"paid": 5635.15, "manual": true}, "gas_01/25": {"paid": 395.91, "manual": true, "type": "gas"}, "cap_01/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "02/25": {"paid": 5124.37, "manual": true}, "gas_02/25": {"paid": 358.56, "manual": true, "type": "gas"}, "cap_02/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "03/25": {"paid": 5048.49, "manual": true}, "gas_03/25": {"paid": 358.56, "manual": true, "type": "gas"}, "cap_03/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "04/25": {"paid": 4331.38, "manual": true}, "gas_04/25": {"paid": 216.63, "manual": true, "type": "gas"}, "cap_04/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "05/25": {"paid": 2985.16, "manual": true}, "gas_05/25": {"paid": 164.34, "manual": true, "type": "gas"}, "cap_05/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "06/25": {"paid": 2937.39, "manual": true}, "gas_06/25": {"paid": 164.34, "manual": true, "type": "gas"}, "cap_06/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "07/25": {"paid": 1049.66, "manual": true}, "gas_07/25": {"paid": 185.02, "manual": true, "type": "gas"}, "cap_07/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "08/25": {"paid": 2157.2, "manual": true}, "gas_08/25": {"paid": 243.89, "manual": true, "type": "gas"}, "cap_08/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "09/25": {"paid": 2881.93, "manual": true}, "gas_09/25": {"paid": 201.84, "manual": true, "type": "gas"}, "cap_09/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "10/25": {"paid": 4373.25, "manual": true}, "gas_10/25": {"paid": 252.3, "manual": true, "type": "gas"}, "cap_10/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "11/25": {"paid": 5455.07, "manual": true}, "gas_11/25": {"paid": 538.24, "manual": true, "type": "gas"}, "cap_11/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "12/25": {"paid": 5677.01, "manual": true}, "gas_12/25": {"paid": 664.39, "manual": true, "type": "gas"}, "cap_12/25": {"paid": 396.4, "manual": true, "type": "cap_repair"}, "01/26": {"paid": 6201.44, "manual": true}, "gas_01/26": {"paid": 880.65, "manual": true, "type": "gas"}, "cap_01/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "02/26": {"paid": 6236.48, "manual": true}, "gas_02/26": {"paid": 897.75, "manual": true, "type": "gas"}, "cap_02/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "03/26": {"paid": 4227.77, "manual": true}, "gas_03/26": {"paid": 906.3, "manual": true, "type": "gas"}, "cap_03/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "04/26": {"paid": 4325.24, "manual": true}, "gas_04/26": {"paid": 350.55, "manual": true, "type": "gas"}, "cap_04/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "05/26": {"paid": 3484.81, "manual": true}, "gas_05/26": {"paid": 222.3, "manual": true, "type": "gas"}, "cap_05/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "06/26": {"paid": 3569.69, "manual": true}, "gas_06/26": {"paid": 213.75, "manual": true, "type": "gas"}, "cap_06/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "07/26": {"paid": 4466.32, "manual": true}, "gas_07/26": {"paid": 205.2, "manual": true, "type": "gas"}, "cap_07/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "08/26": {"paid": 4511.81, "manual": true}, "gas_08/26": {"paid": 205.2, "manual": true, "type": "gas"}, "cap_08/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}, "09/26": {"paid": 3849.6, "manual": true}, "gas_09/26": {"paid": 222.3, "manual": true, "type": "gas"}, "cap_09/26": {"paid": 475.49, "manual": true, "type": "cap_repair"}}, "kirby": {"01/23": {"paid": 8000.0, "manual": true}, "02/23": {"paid": 5957.58, "manual": true}, "03/23": {"paid": 5605.68, "manual": true}, "04/23": {"paid": 4213.17, "manual": true}, "05/23": {"paid": 4992.05, "manual": true}, "06/23": {"paid": 7238.42, "manual": true}, "07/23": {"paid": 1420.54, "manual": true}, "08/23": {"paid": 2307.68, "manual": true}, "09/23": {"paid": 2643.08, "manual": true}, "10/23": {"paid": 2488.92, "manual": true}, "11/23": {"paid": 4705.39, "manual": true}, "12/23": {"paid": 6573.44, "manual": true}, "01/24": {"paid": 6258.22, "manual": true}, "02/24": {"paid": 9008.2, "manual": true}, "03/24": {"paid": 5757.88, "manual": true}, "04/24": {"paid": 6790.48, "manual": true}, "05/24": {"paid": 5143.43, "manual": true}, "06/24": {"paid": 4197.79, "manual": true}, "07/24": {"paid": 3564.57, "manual": true}, "08/24": {"paid": 3595.11, "manual": true}, "09/24": {"paid": 3381.8, "manual": true}, "10/24": {"paid": 3704.12, "manual": true}, "11/24": {"paid": 5869.34, "manual": true}, "12/24": {"paid": 6016.67, "manual": true}, "01/25": {"paid": 6847.01, "manual": true}, "02/25": {"paid": 6974.12, "manual": true}, "03/25": {"paid": 6956.66, "manual": true}, "04/25": {"paid": 5244.25, "manual": true}, "05/25": {"paid": 4069.6, "manual": true}, "06/25": {"paid": 4058.19, "manual": true}, "07/25": {"paid": 3511.96, "manual": true}, "08/25": {"paid": 3784.31, "manual": true}, "09/25": {"paid": 3529.82, "manual": true}, "10/25": {"paid": 4619.5, "manual": true}, "11/25": {"paid": 6056.74, "manual": true}, "12/25": {"paid": 6645.16, "manual": true}, "01/26": {"paid": 11506.19, "manual": true}, "02/26": {"paid": 12955.52, "manual": true}, "03/26": {"paid": 9482.66, "manual": true}, "04/26": {"paid": 7974.29, "manual": true}, "05/26": {"paid": 6947.71, "manual": true}, "06/26": {"paid": 5341.21, "manual": true}, "07/26": {"paid": 6242.92, "manual": true}, "08/26": {"paid": 3094.39, "manual": true}, "09/26": {"paid": 3212.63, "manual": true}}};
+    // Увеличивай при обновлении исторических данных из Excel — тогда localStorage перезапишется 1-в-1
+    const DATA_VERSION = 202611033;
+
+    const DEFAULT_TARIFFS = {
+      // По приборам учёта (из квитанции за октябрь 2026)
+      water: 45.89,       // ₽/м³ холодная вода
+      sewage: 100.37,     // ₽/м³ канализация
+      gas: 8.55,          // ₽/м³ (отдельный счёт, в этой квитанции нет)
+      t1: 5.57,           // ₽/кВт·ч день
+      t2: 3.40,           // ₽/кВт·ч ночь
+      cap_repair: 475.49, // капремонт (отдельный платёж)
+      other_services: 0   // будет пересчитано из списка услуг
+    };
+
+    // Услуги ЖКХ из квитанции ООО «УК Управление Комфортом» за октябрь 2026
+    // unit: 'м²' | 'чел' | 'кв-ра' | 'фикс'
+    // tariff — стоимость за единицу, amount — начислено за месяц
+    const DEFAULT_SERVICES = [
+      { name: "Обращение с ТКО", unit: "чел", tariff: 131.51, amount: 131.51 },
+      { name: "Тек.ремонт и тех.обсл. ж/здания", unit: "м²", tariff: 5.63, amount: 263.48 },
+      { name: "Содержание придомовой территории", unit: "м²", tariff: 3.49, amount: 163.33 },
+      { name: "Дератизация (дезинсекция)", unit: "м²", tariff: 0.52, amount: 24.34 },
+      { name: "Тек.ремонт внутридом.сан.тех.сетей", unit: "м²", tariff: 2.82, amount: 131.98 },
+      { name: "Тек.ремонт внутридом. сетей электроснабжения", unit: "м²", tariff: 1.61, amount: 75.35 },
+      { name: "Тек.ремонт внутридом.газовых сетей", unit: "м²", tariff: 0.46, amount: 21.53 },
+      { name: "Содержание контейнерных площадок", unit: "м²", tariff: 0.46, amount: 21.53 },
+      { name: "ТО вентиляционных каналов", unit: "м²", tariff: 0.45, amount: 21.06 },
+      { name: "ТО дымоходов", unit: "м²", tariff: 0.82, amount: 38.38 },
+      { name: "Управление жилым фондом", unit: "м²", tariff: 6.85, amount: 320.58 },
+      { name: "Холодная вода в целях содержания ОИ", unit: "м²", tariff: 0.38, amount: 73.78 },
+      { name: "Водоотведение в целях содержания ОИ", unit: "м²", tariff: 0.83, amount: 94.68 },
+      { name: "Электроснабжение в целях содержания ОИ", unit: "м²", tariff: 5.53, amount: 256.24 },
+      { name: "ТО общедомовой сети ТВ приема", unit: "кв-ра", tariff: 26.00, amount: 26.00 },
+      { name: "Тех.обслуживание ЗПУ", unit: "кв-ра", tariff: 26.00, amount: 26.00 },
+      { name: "Видеонаблюдение придомовой территории", unit: "кв-ра", tariff: 58.96, amount: 58.96 },
+      { name: "Тех.обслуживание СКУД ворот", unit: "кв-ра", tariff: 23.00, amount: 23.00 }
+    ];
+
+    const METERS_INFO = {
+      '69': [
+        { name: 'Холодная вода', number: '0262658', lastCheck: '2024-05', nextCheck: '2032-07', unit: 'м³' },
+        { name: 'Газ', number: '—', lastCheck: '2023-11', nextCheck: '2033-11', unit: 'м³' },
+        { name: 'Электричество (Т1/Т2)', number: '36566486', lastCheck: '2022-08', nextCheck: '2040-08', unit: 'кВт·ч' }
+      ],
+      'kirby': [
+        { name: 'Электричество', number: '—', lastCheck: '—', nextCheck: '—', unit: 'кВт·ч' },
+        { name: 'Газ', number: '—', lastCheck: '—', nextCheck: '—', unit: 'м³' }
+      ]
+    };
+
+    // State
+    let currentApt = '69';
+    let data = { apt69: [], kirby: [] };
+    let tariffs = { ...DEFAULT_TARIFFS };
+    let services = JSON.parse(JSON.stringify(DEFAULT_SERVICES));
+    let payments = {}; // { "69": { "10/26": { paid: 4500, manual: true }, ... }, "kirby": {} }
+    let charts = {};
+
+    // ========== FIREBASE SYNC ==========
+    let db = null;
+    let firebaseReady = false;
+    let isApplyingCloud = false; // prevent write loops
+    let lastCloudUpdatedAt = 0;
+    let unsubscribeSnapshot = null;
+    const FIREBASE_CONFIG_KEY = 'meters_app_firebase_config';
+    const SYNC_DOC_PATH = { collection: 'meters', doc: 'main' }; // fixed for simplicity; can be changed via config
+
+    function loadFirebaseConfig() {
+      try {
+        const raw = localStorage.getItem(FIREBASE_CONFIG_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch { return null; }
+    }
+
+    function saveFirebaseConfig(cfg) {
+      localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(cfg));
+    }
+
+    function setSyncStatus(text, colorClass = 'text-slate-400') {
+      const el = document.getElementById('sync-text');
+      const status = document.getElementById('sync-status');
+      if (el) {
+        el.textContent = text;
+        el.className = colorClass;
+      }
+      if (status) status.classList.remove('hidden');
+    }
+
+    async function initFirebase() {
+      const cfg = loadFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !cfg.projectId) {
+        setSyncStatus('Локально', 'text-slate-400');
+        return;
+      }
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(cfg);
+        }
+        db = firebase.firestore();
+        // Offline persistence (multi-tab)
+        try {
+          await db.enablePersistence({ synchronizeTabs: true });
+        } catch (err) {
+          if (err.code === 'failed-precondition') {
+            console.warn('Persistence: multiple tabs');
+          } else if (err.code === 'unimplemented') {
+            console.warn('Persistence not supported');
+          }
+        }
+        firebaseReady = true;
+        setSyncStatus('Подключение…', 'text-sky-400');
+
+        const docRef = db.collection(cfg.collection || SYNC_DOC_PATH.collection).doc(cfg.docId || SYNC_DOC_PATH.doc);
+
+        // Initial load
+        const snap = await docRef.get();
+        if (snap.exists) {
+          applyCloudData(snap.data(), true);
+          setSyncStatus('Синхронизировано', 'text-emerald-400');
+        } else {
+          // First time: push local data
+          await pushToCloud();
+          setSyncStatus('Облако создано', 'text-emerald-400');
+        }
+
+        // Real-time listener
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
+        unsubscribeSnapshot = docRef.onSnapshot(
+          (snapshot) => {
+            if (!snapshot.exists) return;
+            const cloudData = snapshot.data();
+            const cloudTs = cloudData.updatedAt || 0;
+            if (cloudTs > lastCloudUpdatedAt) {
+              applyCloudData(cloudData, false);
+              setSyncStatus('Синхронизировано', 'text-emerald-400');
+            }
+          },
+          (err) => {
+            console.error('Snapshot error', err);
+            setSyncStatus('Ошибка связи', 'text-rose-400');
+          }
+        );
+      } catch (e) {
+        console.error('Firebase init error', e);
+        setSyncStatus('Ошибка Firebase', 'text-rose-400');
+        firebaseReady = false;
+      }
+    }
+
+    function applyCloudData(cloud, isInitial) {
+      if (!cloud || isApplyingCloud) return;
+      isApplyingCloud = true;
+      try {
+        if (cloud.data) {
+          data.apt69 = cloud.data.apt69 || data.apt69;
+          data.kirby = cloud.data.kirby || data.kirby;
+        }
+        if (cloud.tariffs) tariffs = { ...tariffs, ...cloud.tariffs };
+        if (cloud.services) services = cloud.services;
+        // Полная замена payments — важно для отметок газ/капремонт (в т.ч. удаления)
+        if (cloud.payments) {
+          payments = JSON.parse(JSON.stringify(cloud.payments));
+          if (!payments['69']) payments['69'] = {};
+          if (!payments['kirby']) payments['kirby'] = {};
+        }
+        if (cloud.meters) Object.assign(METERS_INFO, cloud.meters);
+        lastCloudUpdatedAt = cloud.updatedAt || Date.now();
+        // Persist locally as cache
+        localStorage.setItem('meters_app_data', JSON.stringify(data));
+        localStorage.setItem('meters_app_tariffs', JSON.stringify(tariffs));
+        localStorage.setItem('meters_app_services', JSON.stringify(services));
+        localStorage.setItem('meters_app_payments', JSON.stringify(payments));
+        localStorage.setItem('meters_app_meters', JSON.stringify(METERS_INFO));
+        renderAll();
+      } finally {
+        isApplyingCloud = false;
+      }
+    }
+
+    async function pushToCloud() {
+      if (!firebaseReady || !db || isApplyingCloud) return;
+      const cfg = loadFirebaseConfig();
+      if (!cfg) return;
+      try {
+        setSyncStatus('Сохранение…', 'text-amber-400');
+        // Полный объект (без merge), чтобы удаления отметок оплаты (газ/капремонт) тоже уходили в облако
+        const payload = {
+          data: { apt69: data.apt69, kirby: data.kirby },
+          tariffs,
+          services,
+          payments: JSON.parse(JSON.stringify(payments)), // deep clone to avoid any reference issues
+          meters: METERS_INFO,
+          updatedAt: Date.now()
+        };
+        lastCloudUpdatedAt = payload.updatedAt;
+        const docRef = db.collection(cfg.collection || SYNC_DOC_PATH.collection).doc(cfg.docId || SYNC_DOC_PATH.doc);
+        await docRef.set(payload); // full replace — critical for removed payment marks
+        setSyncStatus('Синхронизировано', 'text-emerald-400');
+      } catch (e) {
+        console.error('Push to cloud failed', e);
+        setSyncStatus('Ошибка записи', 'text-rose-400');
+      }
+    }
+
+    // Debounced cloud push
+    let pushTimer = null;
+    function scheduleCloudPush() {
+      if (!firebaseReady) return;
+      clearTimeout(pushTimer);
+      pushTimer = setTimeout(() => pushToCloud(), 800);
+    }
+
+    // ========== INIT ==========
+    function safeJsonParse(str, fallback) {
+      try { return str ? JSON.parse(str) : fallback; } catch (e) { console.warn('JSON parse fail', e); return fallback; }
+    }
+
+    function showFatalError(msg) {
+      try {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0f172a;color:#f87171;padding:24px;font-family:system-ui;overflow:auto';
+        banner.innerHTML = '<h2 style="color:#fbbf24">Ошибка запуска</h2><pre style="white-space:pre-wrap;color:#e2e8f0">' +
+          String(msg).replace(/</g,'&lt;') +
+          '</pre><p style="color:#94a3b8">Нажмите кнопку ниже, чтобы сбросить локальные данные и перезагрузить.</p>' +
+          '<button id="btn-hard-reset" style="margin-top:12px;padding:10px 16px;background:#38bdf8;color:#0f172a;border:0;border-radius:8px;font-weight:600;cursor:pointer">Сбросить и перезагрузить</button>';
+        document.body.appendChild(banner);
+        document.getElementById('btn-hard-reset').onclick = function() {
+          try {
+            ['meters_app_data','meters_app_tariffs','meters_app_services','meters_app_payments','meters_app_meters','meters_app_data_version','meters_app_firebase_config']
+              .forEach(k => localStorage.removeItem(k));
+          } catch(e) {}
+          location.reload();
+        };
+      } catch (e) {
+        alert('Ошибка: ' + msg);
+      }
+    }
+
+    async function init() {
+      try {
+        // Версия исторических данных: при обновлении DATA_VERSION принудительно
+        // подставляем показания 1-в-1 из Excel (EMBEDDED_DATA), не пересчитывая.
+        const storedVersion = parseInt(localStorage.getItem('meters_app_data_version') || '0', 10) || 0;
+        const forceHistory = storedVersion < DATA_VERSION;
+
+        if (forceHistory && typeof EMBEDDED_DATA !== 'undefined') {
+          data = { apt69: JSON.parse(JSON.stringify(EMBEDDED_DATA.apt69 || [])), kirby: JSON.parse(JSON.stringify(EMBEDDED_DATA.kirby || [])) };
+          localStorage.setItem('meters_app_data', JSON.stringify(data));
+          localStorage.setItem('meters_app_data_version', String(DATA_VERSION));
+          if (typeof EMBEDDED_PAYMENTS !== 'undefined') {
+            payments = JSON.parse(JSON.stringify(EMBEDDED_PAYMENTS));
+            localStorage.setItem('meters_app_payments', JSON.stringify(payments));
+          }
+        } else {
+          const stored = localStorage.getItem('meters_app_data');
+          const parsed = safeJsonParse(stored, null);
+          if (parsed && (parsed.apt69 || parsed.kirby)) {
+            data = parsed;
+          } else if (typeof EMBEDDED_DATA !== 'undefined') {
+            data = { apt69: JSON.parse(JSON.stringify(EMBEDDED_DATA.apt69 || [])), kirby: JSON.parse(JSON.stringify(EMBEDDED_DATA.kirby || [])) };
+            localStorage.setItem('meters_app_data_version', String(DATA_VERSION));
+          }
+          const storedPayments = localStorage.getItem('meters_app_payments');
+          const parsedPay = safeJsonParse(storedPayments, null);
+          if (parsedPay) {
+            payments = parsedPay;
+          } else if (typeof EMBEDDED_PAYMENTS !== 'undefined') {
+            payments = JSON.parse(JSON.stringify(EMBEDDED_PAYMENTS));
+          }
+        }
+        if (!data) data = { apt69: [], kirby: [] };
+        if (!Array.isArray(data.apt69)) data.apt69 = [];
+        if (!Array.isArray(data.kirby)) data.kirby = [];
+        if (!payments || typeof payments !== 'object') payments = {};
+        if (!payments['69']) payments['69'] = {};
+        if (!payments['kirby']) payments['kirby'] = {};
+
+        const storedTariffs = localStorage.getItem('meters_app_tariffs');
+        const parsedTariffs = safeJsonParse(storedTariffs, null);
+        if (parsedTariffs) tariffs = Object.assign({}, DEFAULT_TARIFFS, parsedTariffs);
+
+        const storedServices = localStorage.getItem('meters_app_services');
+        const parsedServices = safeJsonParse(storedServices, null);
+        if (Array.isArray(parsedServices) && parsedServices.length) services = parsedServices;
+
+        markPaidThroughSeptember();
+
+        const storedMeters = localStorage.getItem('meters_app_meters');
+        const parsedMeters = safeJsonParse(storedMeters, null);
+        if (parsedMeters) Object.assign(METERS_INFO, parsedMeters);
+
+        const sTotal = services.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+        if (sTotal > 0) tariffs.other_services = Math.round(sTotal * 100) / 100;
+
+        bindEvents();
+        const now = new Date();
+        const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        const im = document.getElementById('input-month');
+        if (im && !im.value) im.value = ym;
+        renderAll();
+        try { checkReminders(); } catch (e) { console.warn(e); }
+
+        initFirebase().catch(e => console.error(e));
+      } catch (e) {
+        console.error('init failed', e);
+        showFatalError((e && e.stack) ? e.stack : String(e));
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('meters_app_data', JSON.stringify(data));
+      scheduleCloudPush();
+    }
+    function saveTariffs() {
+      localStorage.setItem('meters_app_tariffs', JSON.stringify(tariffs));
+      scheduleCloudPush();
+    }
+    function saveServices() {
+      localStorage.setItem('meters_app_services', JSON.stringify(services));
+      const sTotal = services.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+      tariffs.other_services = Math.round(sTotal * 100) / 100;
+      saveTariffs();
+    }
+    function savePayments() {
+      localStorage.setItem('meters_app_payments', JSON.stringify(payments));
+      scheduleCloudPush();
+    }
+
+    // ========== RENDER ==========
+    function getCurrentData() {
+      return currentApt === '69' ? data.apt69 : data.kirby;
+    }
+
+    function renderAll() {
+      document.getElementById('header-sub').textContent = currentApt === '69' ? 'Квартира 69' : 'Кирби';
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.apt === currentApt);
+        if (b.dataset.apt !== currentApt) b.classList.add('bg-slate-800/60');
+        else b.classList.remove('bg-slate-800/60');
+      });
+
+      renderDashboard();
+      renderHistory();
+      renderMeters();
+      renderTariffsForm();
+      renderServices();
+      renderPayments();
+      if (!document.getElementById('tab-charts').classList.contains('hidden')) {
+        renderCharts();
+      }
+
+      document.getElementById('fields-69').classList.toggle('hidden', currentApt !== '69');
+      document.getElementById('fields-kirby').classList.toggle('hidden', currentApt !== 'kirby');
+    }
+
+    function renderDashboard() {
+      const rows = getCurrentData();
+      const last = rows.length ? rows[rows.length - 1] : null;
+      const el = document.getElementById('dashboard');
+      const month = last?.month || '';
+
+      if (currentApt === '69') {
+        const consW = last?.cons_water;
+        const consG = last?.cons_gas;
+        const consT1 = last?.cons_t1 || 0;
+        const consT2 = last?.cons_t2 || 0;
+        const consE = consT1 + consT2;
+        const costW = last?.cost_water != null && last?.cost_sewage != null
+          ? (Number(last.cost_water) + Number(last.cost_sewage))
+          : (consW != null ? consW * (tariffs.water + tariffs.sewage) : null);
+        const costG = last?.cost_gas != null ? Number(last.cost_gas)
+          : (consG != null ? consG * tariffs.gas : null);
+        const costE = (last?.cost_t1 != null || last?.cost_t2 != null)
+          ? (Number(last.cost_t1 || 0) + Number(last.cost_t2 || 0))
+          : (consE ? consT1 * tariffs.t1 + consT2 * tariffs.t2 : null);
+        const total = last?.total ?? last?.invoice_sum ?? null;
+        const cap = last?.cap_repair != null ? Number(last.cap_repair) : (tariffs.cap_repair || 0);
+        const capKey = 'cap_' + month;
+        const gasKey = 'gas_' + month;
+        const capPaid = payments['69']?.[capKey]?.paid != null;
+        const gasPaid = payments['69']?.[gasKey]?.paid != null;
+        const billPaid = payments['69']?.[month]?.paid != null;
+
+        el.className = 'grid grid-cols-2 md:grid-cols-3 gap-3 mb-6';
+        el.innerHTML = `
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-tint mr-1 text-sky-400"></i>Вода + канализация</div>
+            <div class="text-2xl font-bold">${last?.water ?? '—'}</div>
+            <div class="text-xs text-slate-400 mt-1">+${consW != null ? consW : '—'} м³</div>
+            <div class="text-sm font-semibold text-sky-300 mt-2">${costW != null ? costW.toLocaleString('ru-RU', {maximumFractionDigits:0}) + ' ₽' : '—'}</div>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-fire mr-1 text-orange-400"></i>Газ</div>
+            <div class="text-2xl font-bold">${last?.gas ?? '—'}</div>
+            <div class="text-xs text-slate-400 mt-1">+${consG != null ? consG : '—'} м³ · ${costG != null ? costG.toLocaleString('ru-RU', {maximumFractionDigits:0}) + ' ₽' : '—'}</div>
+            <button onclick="toggleGasPaid('${month}')"
+              class="mt-2 w-full py-1.5 rounded-lg text-xs font-medium transition ${gasPaid
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-700/80 text-slate-300 hover:bg-slate-600'}">
+              ${gasPaid ? '✓ Оплачен' : 'Отметить оплату'}
+            </button>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-bolt mr-1 text-yellow-400"></i>Электричество</div>
+            <div class="text-2xl font-bold">${last?.t_total ?? '—'}</div>
+            <div class="text-xs text-slate-400 mt-1">+${consE || '—'} кВт·ч (Т1 ${consT1} / Т2 ${consT2})</div>
+            <div class="text-sm font-semibold text-yellow-300 mt-2">${costE != null ? costE.toLocaleString('ru-RU', {maximumFractionDigits:0}) + ' ₽' : '—'}</div>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-building mr-1 text-violet-400"></i>Капремонт</div>
+            <div class="text-2xl font-bold text-violet-300">${cap ? cap.toLocaleString('ru-RU', {maximumFractionDigits:0}) : '—'} ₽</div>
+            <div class="text-xs text-slate-500 mt-1">${month || ''}</div>
+            <button onclick="toggleCapPaid('${month}')"
+              class="mt-2 w-full py-1.5 rounded-lg text-xs font-medium transition ${capPaid
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-700/80 text-slate-300 hover:bg-slate-600'}">
+              ${capPaid ? '✓ Оплачен' : 'Отметить оплату'}
+            </button>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition col-span-2 md:col-span-2">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-ruble-sign mr-1 text-emerald-400"></i>Итого к оплате</div>
+            <div class="text-2xl font-bold text-emerald-300">${total != null ? Number(total).toLocaleString('ru-RU', {maximumFractionDigits:0}) : '—'} ₽</div>
+            <div class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+              <span>${month}</span>
+              ${billPaid
+                ? '<span class="badge bg-emerald-500/20 text-emerald-300">Счёт оплачен</span>'
+                : '<span class="badge bg-amber-500/20 text-amber-300">Счёт не оплачен</span>'}
+              ${gasPaid
+                ? '<span class="badge bg-orange-500/20 text-orange-300">Газ оплачен</span>'
+                : ''}
+              ${capPaid
+                ? '<span class="badge bg-violet-500/20 text-violet-300">Капремонт оплачен</span>'
+                : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        // Кирби — только дашборд этой квартиры (69 не трогаем)
+        const consE = last?.cons_elec ?? '—';
+        const consG = last?.cons_gas ?? '—';
+        // Газ: до октября 2026 — историческая сумма (paid_gas), с октября — по текущему тарифу
+        let gasAmt = null;
+        if (last) {
+          if (isThroughSeptember2026(month)) {
+            if (last.paid_gas != null) gasAmt = Number(last.paid_gas);
+            else if (last.cons_gas != null) gasAmt = Math.round(Number(last.cons_gas) * (tariffs.gas || 0) * 100) / 100;
+          } else if (last.cons_gas != null) {
+            gasAmt = Math.round(Number(last.cons_gas) * (tariffs.gas || 0) * 100) / 100;
+          }
+        }
+        // Квартплата: сумма из раздела «Оплаты» (или исторический paid_rent)
+        const pKirby = payments['kirby'] || {};
+        const gasKey = 'gas_' + month;
+        const rentKey = 'rent_' + month;
+        let rentAmt = null;
+        if (pKirby[month]?.paid != null) rentAmt = Number(pKirby[month].paid);
+        else if (pKirby[rentKey]?.paid != null) rentAmt = Number(pKirby[rentKey].paid);
+        else if (last?.paid_rent != null) rentAmt = Number(last.paid_rent);
+
+        const gasPaid = pKirby[gasKey]?.paid != null;
+        const rentPaid = pKirby[rentKey]?.paid != null || (pKirby[month]?.paid != null && pKirby[month]?.type !== 'gas');
+        const gasPaidAmt = pKirby[gasKey]?.paid;
+        const rentPaidAmt = pKirby[rentKey]?.paid != null ? pKirby[rentKey].paid
+          : (pKirby[month]?.paid != null ? pKirby[month].paid : null);
+
+        el.className = 'grid grid-cols-2 md:grid-cols-3 gap-3 mb-6';
+        el.innerHTML = `
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-bolt mr-1 text-yellow-400"></i>Электричество</div>
+            <div class="text-2xl font-bold">${last?.elec ?? '—'}</div>
+            <div class="text-xs text-slate-500 mt-1">+${consE} кВт·ч · ${month || ''}</div>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-fire mr-1 text-orange-400"></i>Газ</div>
+            <div class="text-2xl font-bold">${last?.gas ?? '—'}</div>
+            <div class="text-xs text-slate-400 mt-1">+${consG} м³${gasAmt != null ? ' · ' + gasAmt.toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽' : ''}</div>
+            <div class="text-xs text-slate-500 mt-0.5">${isThroughSeptember2026(month) ? 'историческая сумма' : ((tariffs.gas || 0) + ' ₽/м³')}</div>
+            <button onclick="toggleGasPaid('${month}')"
+              class="mt-2 w-full py-1.5 rounded-lg text-xs font-medium transition ${gasPaid
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-700/80 text-slate-300 hover:bg-slate-600'}">
+              ${gasPaid
+                ? '✓ Оплачен' + (gasPaidAmt != null ? ' · ' + Number(gasPaidAmt).toLocaleString('ru-RU') + ' ₽' : '')
+                : 'Отметить оплату'}
+            </button>
+          </div>
+          <div class="glass rounded-2xl p-4 card-hover transition col-span-2 md:col-span-1">
+            <div class="text-xs text-slate-400 mb-1"><i class="fas fa-home mr-1 text-sky-400"></i>Квартплата</div>
+            <div class="text-2xl font-bold text-sky-300">${rentAmt != null ? Number(rentAmt).toLocaleString('ru-RU', {maximumFractionDigits: 2}) : '—'} ₽</div>
+            <div class="text-xs text-slate-500 mt-1">${month || '—'} · из раздела «Оплаты»</div>
+            <button onclick="toggleKirbyRentPaid('${month}')"
+              class="mt-2 w-full py-1.5 rounded-lg text-xs font-medium transition ${rentPaid
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-700/80 text-slate-300 hover:bg-slate-600'}">
+              ${rentPaid
+                ? '✓ Оплачена' + (rentPaidAmt != null ? ' · ' + Number(rentPaidAmt).toLocaleString('ru-RU') + ' ₽' : '')
+                : 'Отметить оплату'}
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function toggleCapPaid(month) {
+      if (!month) return;
+      const aptKey = '69';
+      if (!payments[aptKey]) payments[aptKey] = {};
+      const key = 'cap_' + month;
+      if (payments[aptKey][key]?.paid != null) {
+        delete payments[aptKey][key];
+      } else {
+        const rows = data.apt69;
+        const row = rows.find(r => r.month === month);
+        const amount = row?.cap_repair != null ? Number(row.cap_repair) : (tariffs.cap_repair || 0);
+        payments[aptKey][key] = { paid: amount, manual: true, type: 'cap_repair' };
+      }
+      savePayments();
+      renderDashboard();
+      renderPayments();
+      renderHistory();
+    }
+
+    function toggleGasPaid(month) {
+      if (!month) return;
+      const aptKey = currentApt === '69' ? '69' : 'kirby';
+      if (!payments[aptKey]) payments[aptKey] = {};
+      const key = 'gas_' + month;
+      if (payments[aptKey][key]?.paid != null) {
+        delete payments[aptKey][key];
+      } else {
+        if (aptKey === '69') {
+          const row = data.apt69.find(r => r.month === month);
+          let amount = row?.cost_gas != null ? Number(row.cost_gas) : null;
+          if (amount == null && row?.cons_gas != null) amount = Number(row.cons_gas) * (tariffs.gas || 0);
+          payments[aptKey][key] = { paid: amount || 0, manual: true, type: 'gas' };
+        } else {
+          // Кирби: до октября — исторический paid_gas; с октября — по тарифу
+          const row = data.kirby.find(r => r.month === month);
+          let amount = null;
+          if (row) {
+            if (isThroughSeptember2026(month)) {
+              if (row.paid_gas != null) amount = Number(row.paid_gas);
+              else if (row.cons_gas != null) amount = Math.round(Number(row.cons_gas) * (tariffs.gas || 0) * 100) / 100;
+            } else if (row.cons_gas != null) {
+              amount = Math.round(Number(row.cons_gas) * (tariffs.gas || 0) * 100) / 100;
+            }
+          }
+          payments[aptKey][key] = { paid: amount || 0, manual: true, type: 'gas' };
+        }
+      }
+      savePayments();
+      renderDashboard();
+      renderPayments();
+      renderHistory();
+    }
+
+    // Кирби: сохранить сумму газа вручную (в строку показаний)
+    function saveKirbyGasAmount(month) {
+      if (!month) return;
+      const inp = document.getElementById('kirby-gas-amount');
+      if (!inp) return;
+      const val = inp.value === '' ? null : parseFloat(inp.value);
+      const row = data.kirby.find(r => r.month === month);
+      if (row) {
+        row.paid_gas = (val != null && !isNaN(val)) ? val : null;
+        localStorage.setItem('meters_app_data', JSON.stringify(data));
+        if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      }
+      // если уже отмечен оплаченным — обновить сумму в payments
+      if (!payments['kirby']) payments['kirby'] = {};
+      const key = 'gas_' + month;
+      if (payments['kirby'][key]?.paid != null && val != null && !isNaN(val)) {
+        payments['kirby'][key].paid = val;
+        savePayments();
+      }
+      renderDashboard();
+      renderPayments();
+    }
+
+    // Кирби: сохранить сумму квартплаты вручную
+    function saveKirbyRentAmount(month) {
+      if (!month) return;
+      const inp = document.getElementById('kirby-rent-amount');
+      if (!inp) return;
+      const val = inp.value === '' ? null : parseFloat(inp.value);
+      const row = data.kirby.find(r => r.month === month);
+      if (row) {
+        row.paid_rent = (val != null && !isNaN(val)) ? val : null;
+        localStorage.setItem('meters_app_data', JSON.stringify(data));
+        if (typeof scheduleCloudPush === 'function') scheduleCloudPush();
+      }
+      if (!payments['kirby']) payments['kirby'] = {};
+      const key = 'rent_' + month;
+      if (payments['kirby'][key]?.paid != null && val != null && !isNaN(val)) {
+        payments['kirby'][key].paid = val;
+        savePayments();
+      }
+      renderDashboard();
+      renderPayments();
+    }
+
+    // Кирби: отметка оплаты квартплаты (сумма из раздела «Оплаты» / paid_rent)
+    function toggleKirbyRentPaid(month) {
+      if (!month) return;
+      if (!payments['kirby']) payments['kirby'] = {};
+      const key = 'rent_' + month;
+      if (payments['kirby'][key]?.paid != null) {
+        delete payments['kirby'][key];
+      } else {
+        let amount = null;
+        if (payments['kirby'][month]?.paid != null) {
+          amount = Number(payments['kirby'][month].paid);
+        } else {
+          const row = data.kirby.find(r => r.month === month);
+          amount = row?.paid_rent != null ? Number(row.paid_rent) : 0;
+        }
+        payments['kirby'][key] = { paid: amount || 0, manual: true, type: 'rent' };
+      }
+      savePayments();
+      renderDashboard();
+      renderPayments();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const rows = [...getCurrentData()].reverse();
+      const tbody = document.getElementById('history-body');
+      const thead = document.querySelector('#history-table thead tr');
+
+      if (currentApt === '69') {
+        // История: показания + фактически оплаченные суммы из вкладки «Оплаты»
+        // (ручной ввод счёта + газ + капремонт), без invoice_sum/total из расчётов
+        thead.innerHTML = `
+          <th class="px-3 py-3 font-medium">Месяц</th>
+          <th class="px-3 py-3 font-medium">Вода</th>
+          <th class="px-3 py-3 font-medium">Газ</th>
+          <th class="px-3 py-3 font-medium">Т1</th>
+          <th class="px-3 py-3 font-medium">Т2</th>
+          <th class="px-3 py-3 font-medium">Потр. вода</th>
+          <th class="px-3 py-3 font-medium">Потр. газ</th>
+          <th class="px-3 py-3 font-medium">Потр. эл.</th>
+          <th class="px-3 py-3 font-medium">Счёт опл. ₽</th>
+          <th class="px-3 py-3 font-medium">Газ опл. ₽</th>
+          <th class="px-3 py-3 font-medium">Капремонт ₽</th>
+          <th class="px-3 py-3 font-medium">Всего потрачено ₽</th>
+          <th class="px-3 py-3 font-medium w-16"></th>
+        `;
+        tbody.innerHTML = rows.map((r, idx) => {
+          const realIdx = data.apt69.length - 1 - idx;
+          const consE = (r.cons_t1||0) + (r.cons_t2||0);
+          const p = payments['69'] || {};
+          const billPaid = p[r.month]?.paid != null ? Number(p[r.month].paid) : null;
+          const gasPaid = p['gas_' + r.month]?.paid != null ? Number(p['gas_' + r.month].paid) : null;
+          const capPaid = p['cap_' + r.month]?.paid != null ? Number(p['cap_' + r.month].paid) : null;
+          const spentParts = [billPaid, gasPaid, capPaid].filter(x => x != null);
+          const spent = spentParts.length ? spentParts.reduce((a, b) => a + b, 0) : null;
+          const fmtRub = (v) => v != null
+            ? Number(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 })
+            : '—';
+          return `<tr class="hover:bg-slate-700/30">
+            <td class="px-3 py-2.5 font-medium whitespace-nowrap">${r.month}</td>
+            <td class="px-3 py-2.5">${fmt(r.water)}</td>
+            <td class="px-3 py-2.5">${fmt(r.gas)}</td>
+            <td class="px-3 py-2.5">${fmt(r.t1)}</td>
+            <td class="px-3 py-2.5">${fmt(r.t2)}</td>
+            <td class="px-3 py-2.5 text-sky-300">${fmt(r.cons_water)}</td>
+            <td class="px-3 py-2.5 text-orange-300">${fmt(r.cons_gas)}</td>
+            <td class="px-3 py-2.5 text-yellow-300">${fmt(consE)}</td>
+            <td class="px-3 py-2.5 text-emerald-300">${fmtRub(billPaid)}</td>
+            <td class="px-3 py-2.5 text-orange-300">${fmtRub(gasPaid)}</td>
+            <td class="px-3 py-2.5 text-violet-300">${fmtRub(capPaid)}</td>
+            <td class="px-3 py-2.5 font-medium text-emerald-200">${fmtRub(spent)}</td>
+            <td class="px-2 py-2.5 whitespace-nowrap">
+              <button onclick="editReading(${realIdx})" class="text-sky-400 hover:text-sky-300 p-1" title="Редактировать показания"><i class="fas fa-pen text-xs"></i></button>
+              <button onclick="deleteReading(${realIdx})" class="text-rose-400 hover:text-rose-300 p-1" title="Удалить"><i class="fas fa-trash text-xs"></i></button>
+            </td>
+          </tr>`;
+        }).join('');
+      } else {
+        // Кирби — показания + оплаченные газ и квартплата
+        thead.innerHTML = `
+          <th class="px-3 py-3 font-medium">Месяц</th>
+          <th class="px-3 py-3 font-medium">Электричество</th>
+          <th class="px-3 py-3 font-medium">Газ</th>
+          <th class="px-3 py-3 font-medium">Потр. эл.</th>
+          <th class="px-3 py-3 font-medium">Потр. газ</th>
+          <th class="px-3 py-3 font-medium">Газ опл. ₽</th>
+          <th class="px-3 py-3 font-medium">Квартплата опл. ₽</th>
+          <th class="px-3 py-3 font-medium">Всего опл. ₽</th>
+          <th class="px-3 py-3 font-medium w-16"></th>
+        `;
+        tbody.innerHTML = rows.map((r, idx) => {
+          const realIdx = data.kirby.length - 1 - idx;
+          const p = payments['kirby'] || {};
+          // приоритет: отметка оплаты → исторические paid_* из Excel
+          let gasPaid = p['gas_' + r.month]?.paid != null ? Number(p['gas_' + r.month].paid) : null;
+          if (gasPaid == null && r.paid_gas != null) gasPaid = Number(r.paid_gas);
+          let rentPaid = p['rent_' + r.month]?.paid != null ? Number(p['rent_' + r.month].paid) : null;
+          if (rentPaid == null && p[r.month]?.paid != null) rentPaid = Number(p[r.month].paid);
+          if (rentPaid == null && r.paid_rent != null) rentPaid = Number(r.paid_rent);
+          const spentParts = [gasPaid, rentPaid].filter(x => x != null);
+          const spent = spentParts.length ? spentParts.reduce((a, b) => a + b, 0) : null;
+          const fmtRub = (v) => v != null
+            ? Number(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 })
+            : '—';
+          return `<tr class="hover:bg-slate-700/30">
+          <td class="px-3 py-2.5 font-medium">${r.month}</td>
+          <td class="px-3 py-2.5">${fmt(r.elec)}</td>
+          <td class="px-3 py-2.5">${fmt(r.gas)}</td>
+          <td class="px-3 py-2.5 text-yellow-300">${fmt(r.cons_elec)}</td>
+          <td class="px-3 py-2.5 text-orange-300">${fmt(r.cons_gas)}</td>
+          <td class="px-3 py-2.5 text-orange-300">${fmtRub(gasPaid)}</td>
+          <td class="px-3 py-2.5 text-sky-300">${fmtRub(rentPaid)}</td>
+          <td class="px-3 py-2.5 font-medium text-emerald-200">${fmtRub(spent)}</td>
+          <td class="px-2 py-2.5 whitespace-nowrap">
+            <button onclick="editReading(${realIdx})" class="text-sky-400 hover:text-sky-300 p-1" title="Редактировать показания"><i class="fas fa-pen text-xs"></i></button>
+            <button onclick="deleteReading(${realIdx})" class="text-rose-400 hover:text-rose-300 p-1" title="Удалить"><i class="fas fa-trash text-xs"></i></button>
+          </td>
+        </tr>`;
+        }).join('');
+      }
+    }
+
+    function fmt(v) {
+      if (v == null || v === '') return '—';
+      return Number(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+    }
+
+    function renderCharts() {
+      const rows = getCurrentData().slice(-24); // last 2 years
+      const labels = rows.map(r => r.month);
+
+      destroyCharts();
+
+      const commonOpts = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 } }, grid: { color: 'rgba(148,163,184,0.08)' } },
+          y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(148,163,184,0.08)' } }
+        }
+      };
+
+      if (currentApt === '69') {
+        charts.water = new Chart(document.getElementById('chart-water'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{ data: rows.map(r => r.cons_water), borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.15)', fill: true, tension: 0.3, pointRadius: 2 }]
+          },
+          options: commonOpts
+        });
+        charts.gas = new Chart(document.getElementById('chart-gas'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{ data: rows.map(r => r.cons_gas), borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.15)', fill: true, tension: 0.3, pointRadius: 2 }]
+          },
+          options: commonOpts
+        });
+        charts.elec = new Chart(document.getElementById('chart-elec'), {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Т1', data: rows.map(r => r.cons_t1), backgroundColor: 'rgba(250,204,21,0.7)' },
+              { label: 'Т2', data: rows.map(r => r.cons_t2), backgroundColor: 'rgba(167,139,250,0.7)' }
+            ]
+          },
+          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } }
+        });
+        charts.cost = new Chart(document.getElementById('chart-cost'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{ data: rows.map(r => r.total || r.invoice_sum), borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.15)', fill: true, tension: 0.3, pointRadius: 2 }]
+          },
+          options: commonOpts
+        });
+      } else {
+        charts.water = new Chart(document.getElementById('chart-water'), {
+          type: 'line',
+          data: { labels, datasets: [{ data: rows.map(r => r.cons_elec), borderColor: '#facc15', fill: true, tension: 0.3, pointRadius: 2, backgroundColor: 'rgba(250,204,21,0.15)' }] },
+          options: { ...commonOpts, plugins: { ...commonOpts.plugins, title: { display: true, text: 'Потр. электричества', color: '#94a3b8' } } }
+        });
+        charts.gas = new Chart(document.getElementById('chart-gas'), {
+          type: 'line',
+          data: { labels, datasets: [{ data: rows.map(r => r.cons_gas), borderColor: '#fb923c', fill: true, tension: 0.3, pointRadius: 2, backgroundColor: 'rgba(251,146,60,0.15)' }] },
+          options: commonOpts
+        });
+        // hide others or reuse
+        charts.elec = new Chart(document.getElementById('chart-elec'), {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Квартплата', data: rows.map(r => r.paid_rent), backgroundColor: 'rgba(56,189,248,0.6)' },
+              { label: 'Газ', data: rows.map(r => r.paid_gas), backgroundColor: 'rgba(251,146,60,0.6)' }
+            ]
+          },
+          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } }
+        });
+        charts.cost = new Chart(document.getElementById('chart-cost'), {
+          type: 'line',
+          data: { labels, datasets: [{ data: rows.map(r => (r.paid_rent||0)+(r.paid_gas||0)), borderColor: '#34d399', fill: true, tension: 0.3, pointRadius: 2, backgroundColor: 'rgba(52,211,153,0.15)' }] },
+          options: commonOpts
+        });
+      }
+    }
+
+    function destroyCharts() {
+      Object.values(charts).forEach(c => c?.destroy());
+      charts = {};
+    }
+
+    function renderMeters() {
+      const list = METERS_INFO[currentApt] || [];
+      const el = document.getElementById('meters-info');
+      el.innerHTML = list.map((m, i) => `
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-semibold text-lg">${m.name}</h4>
+              <p class="text-sm text-slate-400 mt-1">Номер: <span class="text-sky-300 font-mono">${m.number}</span></p>
+            </div>
+            <span class="badge bg-slate-700 text-slate-300">${m.unit}</span>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div class="text-slate-500 text-xs">Последняя поверка</div>
+              <div class="font-medium">${m.lastCheck}</div>
+            </div>
+            <div>
+              <div class="text-slate-500 text-xs">Следующая поверка</div>
+              <div class="font-medium ${isCheckSoon(m.nextCheck) ? 'text-amber-400' : ''}">${m.nextCheck}</div>
+            </div>
+          </div>
+          <button onclick="editMeter(${i})" class="mt-4 text-xs text-sky-400 hover:underline">Редактировать</button>
+        </div>
+      `).join('');
+    }
+
+    function isCheckSoon(dateStr) {
+      if (!dateStr || dateStr === '—') return false;
+      try {
+        const [y, m] = dateStr.split('-').map(Number);
+        const next = new Date(y, m - 1);
+        const now = new Date();
+        const diffMonths = (next.getFullYear() - now.getFullYear()) * 12 + (next.getMonth() - now.getMonth());
+        return diffMonths <= 6 && diffMonths >= 0;
+      } catch { return false; }
+    }
+
+    function renderTariffsForm() {
+      const form = document.getElementById('tariffs-form');
+      const fields = [
+        { key: 'water', label: 'Холодная вода (₽/м³)' },
+        { key: 'sewage', label: 'Канализация (₽/м³)' },
+        { key: 'gas', label: 'Газ (₽/м³)' },
+        { key: 't1', label: 'Эл. Т1 день (₽/кВт·ч)' },
+        { key: 't2', label: 'Эл. Т2 ночь (₽/кВт·ч)' },
+        { key: 'cap_repair', label: 'Капремонт (₽/мес)' },
+        { key: 'other_services', label: 'Прочие услуги / ЖКХ (₽) — сумма из таблицы ниже' }
+      ];
+      form.innerHTML = fields.map(f => `
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">${f.label}</label>
+          <input type="number" step="0.01" data-tariff="${f.key}" value="${tariffs[f.key] ?? ''}" class="w-full rounded-lg px-3 py-2.5" ${f.key === 'other_services' ? 'readonly' : ''} />
+        </div>
+      `).join('');
+    }
+
+    // Площадь квартиры и число проживающих — для авто-начисления
+    const APT_AREA = 46.8;
+    const APT_RESIDENTS = 1;
+
+    function calcServiceAmount(unit, tariff) {
+      const t = Number(tariff) || 0;
+      if (unit === 'м²') return Math.round(t * APT_AREA * 100) / 100;
+      if (unit === 'чел') return Math.round(t * APT_RESIDENTS * 100) / 100;
+      // кв-ра / фикс — сумма = тариф
+      return Math.round(t * 100) / 100;
+    }
+
+    function updateServicesTotalLive() {
+      let total = 0;
+      document.querySelectorAll('[data-svc-amount]').forEach(inp => {
+        total += parseFloat(inp.value) || 0;
+      });
+      total = Math.round(total * 100) / 100;
+      const totalEl = document.getElementById('services-total');
+      if (totalEl) totalEl.textContent = total.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+      tariffs.other_services = total;
+      const otherInp = document.querySelector('[data-tariff="other_services"]');
+      if (otherInp) otherInp.value = total;
+    }
+
+    function onServiceTariffOrUnitChange(idx) {
+      const unit = document.querySelector(`[data-svc-unit="${idx}"]`)?.value || 'фикс';
+      const tariffInp = document.querySelector(`[data-svc-tariff="${idx}"]`);
+      const amountInp = document.querySelector(`[data-svc-amount="${idx}"]`);
+      if (!tariffInp || !amountInp) return;
+      const tariff = parseFloat(tariffInp.value) || 0;
+      // Авто-пересчёт начисленного при смене тарифа или единицы
+      amountInp.value = calcServiceAmount(unit, tariff);
+      updateServicesTotalLive();
+    }
+
+    function renderServices() {
+      const tbody = document.getElementById('services-body');
+      if (!tbody) return;
+      tbody.innerHTML = services.map((s, i) => `
+        <tr class="hover:bg-slate-700/30">
+          <td class="px-3 py-2">
+            <input type="text" data-svc-name="${i}" value="${(s.name || '').replace(/"/g, '&quot;')}" class="w-full rounded px-2 py-1.5 text-sm" />
+          </td>
+          <td class="px-3 py-2">
+            <select data-svc-unit="${i}" class="w-full rounded px-2 py-1.5 text-sm bg-slate-900 border border-slate-600">
+              <option value="м²" ${s.unit === 'м²' ? 'selected' : ''}>м²</option>
+              <option value="чел" ${s.unit === 'чел' ? 'selected' : ''}>чел</option>
+              <option value="кв-ра" ${s.unit === 'кв-ра' ? 'selected' : ''}>кв-ра</option>
+              <option value="фикс" ${s.unit === 'фикс' || !s.unit ? 'selected' : ''}>фикс</option>
+            </select>
+          </td>
+          <td class="px-3 py-2">
+            <input type="number" step="0.01" data-svc-tariff="${i}" value="${s.tariff ?? ''}" class="w-full rounded px-2 py-1.5 text-sm" />
+          </td>
+          <td class="px-3 py-2">
+            <input type="number" step="0.01" data-svc-amount="${i}" value="${s.amount ?? ''}" class="w-full rounded px-2 py-1.5 text-sm" />
+          </td>
+          <td class="px-3 py-2">
+            <button onclick="removeService(${i})" class="text-rose-400 hover:text-rose-300 p-1" title="Удалить"><i class="fas fa-trash text-xs"></i></button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Живой пересчёт при вводе
+      tbody.querySelectorAll('[data-svc-unit]').forEach(sel => {
+        sel.addEventListener('change', () => onServiceTariffOrUnitChange(sel.dataset.svcUnit));
+      });
+      tbody.querySelectorAll('[data-svc-tariff]').forEach(inp => {
+        inp.addEventListener('input', () => onServiceTariffOrUnitChange(inp.dataset.svcTariff));
+      });
+      tbody.querySelectorAll('[data-svc-amount]').forEach(inp => {
+        // ручное изменение суммы — только обновляем итог, не трогаем тариф
+        inp.addEventListener('input', updateServicesTotalLive);
+      });
+
+      updateServicesTotalLive();
+    }
+
+    function removeService(idx) {
+      if (!confirm('Удалить услугу?')) return;
+      collectServicesFromForm();
+      services.splice(idx, 1);
+      renderServices();
+    }
+
+    function collectServicesFromForm() {
+      const names = document.querySelectorAll('[data-svc-name]');
+      const newList = [];
+      names.forEach(inp => {
+        const i = inp.dataset.svcName;
+        newList.push({
+          name: inp.value.trim(),
+          unit: document.querySelector(`[data-svc-unit="${i}"]`)?.value || 'фикс',
+          tariff: parseFloat(document.querySelector(`[data-svc-tariff="${i}"]`)?.value) || 0,
+          amount: parseFloat(document.querySelector(`[data-svc-amount="${i}"]`)?.value) || 0
+        });
+      });
+      services = newList;
+    }
+
+    function renderPayments() {
+      const tbody = document.getElementById('payments-body');
+      if (!tbody) return;
+      const rows = [...getCurrentData()].reverse();
+      const aptKey = currentApt === '69' ? '69' : 'kirby';
+      if (!payments[aptKey]) payments[aptKey] = {};
+
+      tbody.innerHTML = rows.map(r => {
+        let inv = null;
+        let total = null;
+        if (aptKey === '69') {
+          inv = r.invoice_sum != null ? Number(r.invoice_sum) : null;
+          total = r.total != null ? Number(r.total) : (inv != null ? inv + (tariffs.other_services || 0) : null);
+        } else {
+          // Кирби: квартплата + газ из строки
+          inv = r.paid_rent != null ? Number(r.paid_rent) : null;
+          total = ((r.paid_rent || 0) + (r.paid_gas || 0)) || null;
+          if (total === 0) total = null;
+        }
+        const p = payments[aptKey][r.month] || {};
+        const paidVal = p.paid != null ? p.paid : '';
+        const isPaid = p.paid != null && p.paid > 0;
+        const status = isPaid
+          ? '<span class="badge bg-emerald-500/20 text-emerald-300">Оплачено</span>'
+          : '<span class="badge bg-slate-600 text-slate-300">Не оплачено</span>';
+        const capKey = 'cap_' + r.month;
+        const gasKey = 'gas_' + r.month;
+        const capP = payments[aptKey][capKey];
+        const gasP = payments[aptKey][gasKey];
+        const capAmt = r.cap_repair != null ? Number(r.cap_repair) : (aptKey === '69' ? tariffs.cap_repair : null);
+        let gasAmt = null;
+        if (aptKey === '69') {
+          gasAmt = r.cost_gas != null ? Number(r.cost_gas) : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+        } else {
+          gasAmt = r.paid_gas != null ? Number(r.paid_gas) : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+        }
+        const capStatus = aptKey === '69'
+          ? (capP?.paid != null
+            ? '<span class="badge bg-violet-500/20 text-violet-300">Капремонт ✓</span>'
+            : (capAmt ? `<button onclick="toggleCapPaid('${r.month}')" class="text-xs text-violet-400 hover:underline">Капремонт ${Math.round(capAmt)} ₽</button>` : ''))
+          : '';
+        const gasStatus = gasP?.paid != null
+          ? '<span class="badge bg-orange-500/20 text-orange-300">Газ ✓</span>'
+          : (gasAmt ? `<button onclick="toggleGasPaid('${r.month}')" class="text-xs text-orange-400 hover:underline">Газ ${Math.round(gasAmt)} ₽</button>` : '');
+        return `<tr class="hover:bg-slate-700/30">
+          <td class="px-3 py-2.5 font-medium whitespace-nowrap">${r.month}</td>
+          <td class="px-3 py-2.5">${inv != null ? inv.toLocaleString('ru-RU', {maximumFractionDigits: 2}) : '—'}</td>
+          <td class="px-3 py-2.5 font-medium">${total != null ? total.toLocaleString('ru-RU', {maximumFractionDigits: 0}) : '—'}</td>
+          <td class="px-3 py-2.5">
+            <input type="number" step="0.01" data-pay-month="${r.month}" value="${paidVal}"
+              class="w-28 rounded-lg px-2 py-1.5 text-sm" placeholder="0"
+              onchange="setPaid('${aptKey}', '${r.month}', this.value)" />
+          </td>
+          <td class="px-3 py-2.5 space-x-1">${status} ${gasStatus} ${capStatus}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function setPaid(aptKey, month, value) {
+      const num = parseFloat(value);
+      if (!payments[aptKey]) payments[aptKey] = {};
+      if (isNaN(num) || value === '') {
+        delete payments[aptKey][month];
+      } else {
+        payments[aptKey][month] = { paid: num, manual: true };
+      }
+      savePayments();
+      renderPayments();
+      renderDashboard();
+      renderHistory();
+    }
+
+    function parseMonthKey(m) {
+      // "09/26" or "9/26" or "10/23" -> {y: 2026, m: 9}
+      if (!m || typeof m !== 'string') return null;
+      const p = m.split('/');
+      if (p.length !== 2) return null;
+      let month = parseInt(p[0], 10);
+      let year = parseInt(p[1], 10);
+      if (year < 100) year += 2000;
+      if (!month || !year) return null;
+      return { y: year, m: month };
+    }
+
+    function isThroughSeptember2026(monthStr) {
+      const d = parseMonthKey(monthStr);
+      if (!d) return false;
+      // до сентября 2026 включительно
+      if (d.y < 2026) return true;
+      if (d.y === 2026 && d.m <= 9) return true;
+      return false;
+    }
+
+    function markPaidThroughSeptember() {
+      // Квартира 69: основной счёт, газ, капремонт
+      if (!payments['69']) payments['69'] = {};
+      (data.apt69 || []).forEach(r => {
+        if (!isThroughSeptember2026(r.month)) return;
+        if (payments['69'][r.month] == null) {
+          const amount = r.total != null ? Number(r.total) : (r.invoice_sum != null ? Number(r.invoice_sum) : 0);
+          payments['69'][r.month] = { paid: amount, manual: true };
+        }
+        const gasKey = 'gas_' + r.month;
+        if (payments['69'][gasKey] == null) {
+          const gasAmt = r.cost_gas != null ? Number(r.cost_gas) : 0;
+          payments['69'][gasKey] = { paid: gasAmt, manual: true, type: 'gas' };
+        }
+        const capKey = 'cap_' + r.month;
+        if (payments['69'][capKey] == null) {
+          const capAmt = r.cap_repair != null ? Number(r.cap_repair) : (tariffs.cap_repair || 0);
+          payments['69'][capKey] = { paid: capAmt, manual: true, type: 'cap_repair' };
+        }
+      });
+      // Кирби
+      if (!payments['kirby']) payments['kirby'] = {};
+      (data.kirby || []).forEach(r => {
+        if (!isThroughSeptember2026(r.month)) return;
+        if (payments['kirby'][r.month] == null) {
+          const amount = ((r.paid_rent || 0) + (r.paid_gas || 0)) || 0;
+          payments['kirby'][r.month] = { paid: amount, manual: true };
+        }
+      });
+      savePayments();
+    }
+
+    // ========== EVENTS ==========
+    function bindEvents() {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentApt = btn.dataset.apt;
+          renderAll();
+        });
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.tab;
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          document.getElementById('tab-' + tab).classList.remove('hidden');
+          document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active', 'text-sky-400');
+            b.classList.add('text-slate-400');
+          });
+          document.querySelectorAll(`.tab-btn[data-tab="${tab}"]`).forEach(b => {
+            b.classList.add('active', 'text-sky-400');
+            b.classList.remove('text-slate-400');
+          });
+          if (tab === 'charts') renderCharts();
+        });
+      });
+
+      document.getElementById('form-readings').addEventListener('submit', e => {
+        e.preventDefault();
+        addReading();
+      });
+
+      document.getElementById('form-edit').addEventListener('submit', e => {
+        e.preventDefault();
+        const idx = parseInt(document.getElementById('edit-idx').value, 10);
+        const list = currentApt === '69' ? data.apt69 : data.kirby;
+        if (isNaN(idx) || idx < 0 || idx >= list.length) return;
+        const oldMonth = list[idx].month;
+        const newMonth = normalizeMonthLabel(document.getElementById('edit-month').value.trim());
+        if (currentApt === '69') {
+          list[idx].month = newMonth;
+          list[idx].water = parseFloat(document.getElementById('edit-water').value) || null;
+          list[idx].gas = parseFloat(document.getElementById('edit-gas').value) || null;
+          list[idx].t1 = parseFloat(document.getElementById('edit-t1').value) || null;
+          list[idx].t2 = parseFloat(document.getElementById('edit-t2').value) || null;
+          recalcApt69();
+        } else {
+          list[idx].month = newMonth;
+          list[idx].elec = parseFloat(document.getElementById('edit-elec').value) || null;
+          list[idx].gas = parseFloat(document.getElementById('edit-gas-k').value) || null;
+          const pr = document.getElementById('edit-paid-rent').value;
+          const pg = document.getElementById('edit-paid-gas').value;
+          list[idx].paid_rent = pr === '' ? null : parseFloat(pr);
+          list[idx].paid_gas = pg === '' ? null : parseFloat(pg);
+          recalcKirby();
+        }
+        // migrate payments keys if month changed
+        if (oldMonth !== newMonth) {
+          const aptKey = currentApt === '69' ? '69' : 'kirby';
+          if (payments[aptKey]) {
+            ['', 'gas_', 'cap_'].forEach(prefix => {
+              const oldK = prefix + oldMonth;
+              const newK = prefix + newMonth;
+              if (payments[aptKey][oldK] != null) {
+                payments[aptKey][newK] = payments[aptKey][oldK];
+                delete payments[aptKey][oldK];
+              }
+            });
+            savePayments();
+          }
+        }
+        saveData();
+        closeEditModal();
+        renderAll();
+      });
+
+      document.getElementById('edit-modal').addEventListener('click', e => {
+        if (e.target.id === 'edit-modal') closeEditModal();
+      });
+
+      document.getElementById('btn-save-tariffs').addEventListener('click', () => {
+        // variable tariffs
+        document.querySelectorAll('[data-tariff]').forEach(inp => {
+          if (inp.dataset.tariff === 'other_services') return;
+          tariffs[inp.dataset.tariff] = parseFloat(inp.value) || 0;
+        });
+        // services list
+        collectServicesFromForm();
+        saveServices(); // also updates other_services + saveTariffs + cloud
+        renderServices();
+        renderTariffsForm();
+        alert('Тарифы и услуги ЖКХ сохранены');
+      });
+
+      document.getElementById('btn-add-service')?.addEventListener('click', () => {
+        collectServicesFromForm();
+        services.push({ name: 'Новая услуга', unit: 'фикс', tariff: 0, amount: 0 });
+        renderServices();
+      });
+
+      document.getElementById('btn-settings').addEventListener('click', openSettings);
+      document.getElementById('btn-reminder').addEventListener('click', openReminders);
+      document.getElementById('modal-close').addEventListener('click', () => {
+        document.getElementById('modal-overlay').classList.add('hidden');
+      });
+      document.getElementById('modal-overlay').addEventListener('click', e => {
+        if (e.target.id === 'modal-overlay') e.target.classList.add('hidden');
+      });
+    }
+
+    function monthToKey(ym) {
+      // "2026-11" -> "11/26"
+      if (!ym) return '';
+      if (ym.includes('/')) return ym;
+      const [y, m] = ym.split('-');
+      return `${parseInt(m, 10)}/${String(y).slice(-2)}`;
+    }
+    function keyToMonth(key) {
+      // "11/26" or "11/2026" -> "2026-11"
+      if (!key) return '';
+      if (key.includes('-') && key.length === 7) return key;
+      const parts = key.split('/');
+      if (parts.length !== 2) return '';
+      let m = parts[0].padStart(2, '0');
+      let y = parts[1];
+      if (y.length === 2) y = '20' + y;
+      return `${y}-${m}`;
+    }
+    function normalizeMonthLabel(key) {
+      // keep consistent MM/YY with leading zero optional like existing data
+      if (!key) return '';
+      if (key.includes('-')) return monthToKey(key);
+      const parts = key.split('/');
+      if (parts.length !== 2) return key;
+      const m = String(parseInt(parts[0], 10));
+      let y = parts[1];
+      if (y.length === 4) y = y.slice(-2);
+      return `${m}/${y}`;
+    }
+
+    function addReading() {
+      const raw = document.getElementById('input-month').value.trim();
+      const month = normalizeMonthLabel(raw);
+      if (!month) return;
+
+      if (currentApt === '69') {
+        const water = parseFloat(document.getElementById('input-water').value) || null;
+        const gas = parseFloat(document.getElementById('input-gas').value) || null;
+        const t1 = parseFloat(document.getElementById('input-t1').value) || null;
+        const t2 = parseFloat(document.getElementById('input-t2').value) || null;
+        const prev = data.apt69.length ? data.apt69[data.apt69.length - 1] : null;
+        const entry = {
+          month, water, gas, t1, t2,
+          t_total: t1 != null && t2 != null ? t1 + t2 : null,
+          cons_water: prev && water != null ? +(water - prev.water).toFixed(3) : null,
+          cons_gas: prev && gas != null ? +(gas - prev.gas).toFixed(3) : null,
+          cons_t1: prev && t1 != null ? +(t1 - prev.t1).toFixed(0) : null,
+          cons_t2: prev && t2 != null ? +(t2 - prev.t2).toFixed(0) : null
+        };
+        if (entry.cons_water != null) {
+          entry.cost_water = +(entry.cons_water * tariffs.water).toFixed(2);
+          entry.cost_sewage = +(entry.cons_water * tariffs.sewage).toFixed(2);
+        }
+        if (entry.cons_gas != null) entry.cost_gas = +(entry.cons_gas * tariffs.gas).toFixed(2);
+        if (entry.cons_t1 != null) entry.cost_t1 = +(entry.cons_t1 * tariffs.t1).toFixed(2);
+        if (entry.cons_t2 != null) entry.cost_t2 = +(entry.cons_t2 * tariffs.t2).toFixed(2);
+        entry.cap_repair = tariffs.cap_repair;
+        // Счёт = вода + канализация + Т1 + Т2 + ЖКХ
+        entry.invoice_sum = +(
+          (entry.cost_water||0) + (entry.cost_sewage||0) +
+          (entry.cost_t1||0) + (entry.cost_t2||0) +
+          (tariffs.other_services||0)
+        ).toFixed(2);
+        // Итого = Счёт + газ + капремонт
+        entry.total = +(
+          entry.invoice_sum + (entry.cost_gas||0) + (entry.cap_repair||0)
+        ).toFixed(2);
+        data.apt69.push(entry);
+      } else {
+        const elec = parseFloat(document.getElementById('input-elec-k').value) || null;
+        const gas = parseFloat(document.getElementById('input-gas-k').value) || null;
+        const prev = data.kirby.length ? data.kirby[data.kirby.length - 1] : null;
+        data.kirby.push({
+          month, elec, gas,
+          cons_elec: prev && elec != null ? elec - prev.elec : null,
+          cons_gas: prev && gas != null ? gas - prev.gas : null,
+          paid_rent: null, paid_gas: null
+        });
+      }
+      saveData();
+      document.getElementById('form-readings').reset();
+      renderAll();
+      // switch to history
+      document.querySelector('.tab-btn[data-tab="history"]').click();
+      alert('Показания сохранены');
+    }
+
+    function editMeter(idx) {
+      const m = METERS_INFO[currentApt][idx];
+      const number = prompt('Номер счётчика:', m.number);
+      if (number !== null) m.number = number;
+      const last = prompt('Последняя поверка (ГГГГ-ММ):', m.lastCheck);
+      if (last !== null) m.lastCheck = last;
+      const next = prompt('Следующая поверка (ГГГГ-ММ):', m.nextCheck);
+      if (next !== null) m.nextCheck = next;
+      localStorage.setItem('meters_app_meters', JSON.stringify(METERS_INFO));
+      scheduleCloudPush();
+      renderMeters();
+    }
+
+    function openSettings() {
+      const cfg = loadFirebaseConfig() || {};
+      document.getElementById('modal-title').textContent = 'Настройки';
+      document.getElementById('modal-body').innerHTML = `
+        <div class="space-y-5 text-sm">
+          <div>
+            <h4 class="font-semibold text-sky-300 mb-2"><i class="fas fa-cloud mr-1.5"></i>Синхронизация Firebase</h4>
+            <p class="text-slate-400 text-xs mb-3">Создайте проект в <a href="https://console.firebase.google.com/" target="_blank" class="text-sky-400 underline">Firebase Console</a> → Firestore Database → начните в режиме test. Скопируйте конфиг веб-приложения.</p>
+            <div class="space-y-2">
+              <input type="text" id="fb-apiKey" placeholder="apiKey" value="${cfg.apiKey || ''}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              <input type="text" id="fb-authDomain" placeholder="authDomain (project.firebaseapp.com)" value="${cfg.authDomain || ''}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              <input type="text" id="fb-projectId" placeholder="projectId" value="${cfg.projectId || ''}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              <input type="text" id="fb-storageBucket" placeholder="storageBucket (optional)" value="${cfg.storageBucket || ''}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              <input type="text" id="fb-appId" placeholder="appId (optional)" value="${cfg.appId || ''}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="fb-collection" placeholder="Коллекция (meters)" value="${cfg.collection || 'meters'}" class="w-full rounded-lg px-3 py-2 text-sm" />
+                <input type="text" id="fb-docId" placeholder="Документ (main)" value="${cfg.docId || 'main'}" class="w-full rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <button onclick="saveFirebaseSettings()" class="mt-3 w-full py-2.5 rounded-lg bg-sky-600/40 text-sky-200 hover:bg-sky-600/60 transition font-medium">
+              <i class="fas fa-save mr-1"></i>Сохранить и подключить
+            </button>
+            <p class="text-xs text-amber-300/80 mt-2">Важно: в Firestore Rules для личного проекта временно поставьте <code class="bg-slate-800 px-1 rounded">allow read, write: if true;</code> (только для вашего приватного проекта!).</p>
+          </div>
+          <hr class="border-slate-700" />
+          <div class="space-y-2">
+            <button onclick="exportData()" class="w-full py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 transition">Экспорт данных (JSON)</button>
+            <button onclick="if(confirm('Сбросить все локальные данные и конфиг Firebase?')){localStorage.clear();location.reload()}" class="w-full py-2.5 rounded-lg bg-rose-900/40 text-rose-300 hover:bg-rose-900/60 transition">Сбросить данные</button>
+          </div>
+          <p class="text-xs text-slate-500">Данные кэшируются в браузере + синхронизируются через Firestore. Работает офлайн.</p>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function saveFirebaseSettings() {
+      const cfg = {
+        apiKey: document.getElementById('fb-apiKey').value.trim(),
+        authDomain: document.getElementById('fb-authDomain').value.trim(),
+        projectId: document.getElementById('fb-projectId').value.trim(),
+        storageBucket: document.getElementById('fb-storageBucket').value.trim() || undefined,
+        appId: document.getElementById('fb-appId').value.trim() || undefined,
+        collection: document.getElementById('fb-collection').value.trim() || 'meters',
+        docId: document.getElementById('fb-docId').value.trim() || 'main'
+      };
+      if (!cfg.apiKey || !cfg.projectId) {
+        alert('Укажите хотя бы apiKey и projectId');
+        return;
+      }
+      saveFirebaseConfig(cfg);
+      // re-init
+      if (unsubscribeSnapshot) { try { unsubscribeSnapshot(); } catch(_){} }
+      db = null;
+      firebaseReady = false;
+      if (firebase.apps.length) {
+        // can't easily re-init; reload is safest
+        location.reload();
+      } else {
+        initFirebase().then(() => {
+          alert('Firebase подключён');
+          document.getElementById('modal-overlay').classList.add('hidden');
+        });
+      }
+    }
+
+    function openReminders() {
+      document.getElementById('modal-title').textContent = 'Напоминания';
+      const day = new Date().getDate();
+      let status = day <= 15 ? `Сегодня ${day}-е. Подайте показания до 15 числа.` : `Показания на этот месяц уже должны быть поданы (15-е прошло).`;
+      document.getElementById('modal-body').innerHTML = `
+        <div class="space-y-4 text-sm">
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+            <p class="font-medium text-amber-200">Подача показаний</p>
+            <p class="text-slate-300 mt-1">${status}</p>
+            <p class="text-xs text-slate-500 mt-2">Каждое 15 число месяца</p>
+          </div>
+          <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
+            <p class="font-medium text-sky-200">Поверка счётчиков</p>
+            <p class="text-slate-300 mt-1">Проверьте сроки на вкладке «Счётчики». При приближении срока появится уведомление.</p>
+          </div>
+          <button onclick="requestNotif()" class="w-full py-2.5 rounded-lg bg-sky-600/30 text-sky-200 hover:bg-sky-600/50 transition">
+            Разрешить уведомления браузера
+          </button>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function requestNotif() {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') alert('Уведомления разрешены');
+        });
+      }
+    }
+
+    function checkReminders() {
+      const day = new Date().getDate();
+      const banner = document.getElementById('reminder-banner');
+      const dot = document.getElementById('reminder-dot');
+      if (day >= 10 && day <= 15) {
+        banner.classList.remove('hidden');
+        document.getElementById('reminder-title').textContent = 'Пора подать показания';
+        document.getElementById('reminder-text').textContent = `До 15 числа осталось ${15 - day} дн. Не забудьте внести показания счётчиков.`;
+        dot.classList.remove('hidden');
+      }
+      // check meters
+      const meters = METERS_INFO[currentApt] || [];
+      for (const m of meters) {
+        if (isCheckSoon(m.nextCheck)) {
+          banner.classList.remove('hidden');
+          document.getElementById('reminder-title').textContent = 'Скоро поверка';
+          document.getElementById('reminder-text').textContent = `${m.name}: поверка до ${m.nextCheck}`;
+          dot.classList.remove('hidden');
+          break;
+        }
+      }
+    }
+
+    function deleteReading(idx) {
+      const list = currentApt === '69' ? data.apt69 : data.kirby;
+      if (idx < 0 || idx >= list.length) return;
+      const row = list[idx];
+      if (!confirm(`Удалить показания за ${row.month}?`)) return;
+      // clean related payments
+      const aptKey = currentApt === '69' ? '69' : 'kirby';
+      if (payments[aptKey]) {
+        delete payments[aptKey][row.month];
+        delete payments[aptKey]['gas_' + row.month];
+        delete payments[aptKey]['cap_' + row.month];
+        savePayments();
+      }
+      list.splice(idx, 1);
+      if (currentApt === '69') recalcApt69();
+      else recalcKirby();
+      saveData();
+      renderAll();
+    }
+
+    function editReading(idx) {
+      const list = currentApt === '69' ? data.apt69 : data.kirby;
+      if (idx < 0 || idx >= list.length) return;
+      const r = list[idx];
+      document.getElementById('edit-idx').value = idx;
+      document.getElementById('edit-month').value = keyToMonth(r.month || '');
+      const is69 = currentApt === '69';
+      document.getElementById('edit-fields-69').classList.toggle('hidden', !is69);
+      document.getElementById('edit-fields-kirby').classList.toggle('hidden', is69);
+      if (is69) {
+        document.getElementById('edit-water').value = r.water ?? '';
+        document.getElementById('edit-gas').value = r.gas ?? '';
+        document.getElementById('edit-t1').value = r.t1 ?? '';
+        document.getElementById('edit-t2').value = r.t2 ?? '';
+      } else {
+        document.getElementById('edit-elec').value = r.elec ?? '';
+        document.getElementById('edit-gas-k').value = r.gas ?? '';
+        document.getElementById('edit-paid-rent').value = r.paid_rent ?? '';
+        document.getElementById('edit-paid-gas').value = r.paid_gas ?? '';
+      }
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    function recalcApt69() {
+      // Исторические cost_*/invoice_sum/total из квитанций НЕ перезаписываем.
+      // Пересчитываем только отсутствующие поля (новые месяцы) по текущим тарифам.
+      // Счёт = вода + канализация + Т1 + Т2 + ЖКХ; Итого = Счёт + газ + капремонт
+      const list = data.apt69;
+      for (let i = 0; i < list.length; i++) {
+        const r = list[i];
+        const prev = i > 0 ? list[i - 1] : null;
+        if (r.t1 != null && r.t2 != null) r.t_total = Number(r.t1) + Number(r.t2);
+        if (prev && r.water != null && prev.water != null) {
+          r.cons_water = +(Number(r.water) - Number(prev.water)).toFixed(3);
+        }
+        if (prev && r.gas != null && prev.gas != null) {
+          r.cons_gas = +(Number(r.gas) - Number(prev.gas)).toFixed(3);
+        }
+        if (prev && r.t1 != null && prev.t1 != null) {
+          r.cons_t1 = +(Number(r.t1) - Number(prev.t1)).toFixed(0);
+        }
+        if (prev && r.t2 != null && prev.t2 != null) {
+          r.cons_t2 = +(Number(r.t2) - Number(prev.t2)).toFixed(0);
+        }
+
+        // Только если стоимости ещё нет — считаем по актуальным тарифам
+        if (r.cost_water == null && r.cons_water != null) {
+          r.cost_water = +(Number(r.cons_water) * tariffs.water).toFixed(2);
+        }
+        if (r.cost_sewage == null && r.cons_water != null) {
+          r.cost_sewage = +(Number(r.cons_water) * tariffs.sewage).toFixed(2);
+        }
+        if (r.cost_gas == null && r.cons_gas != null) {
+          r.cost_gas = +(Number(r.cons_gas) * tariffs.gas).toFixed(2);
+        }
+        if (r.cost_t1 == null && r.cons_t1 != null) {
+          r.cost_t1 = +(Number(r.cons_t1) * tariffs.t1).toFixed(2);
+        }
+        if (r.cost_t2 == null && r.cons_t2 != null) {
+          r.cost_t2 = +(Number(r.cons_t2) * tariffs.t2).toFixed(2);
+        }
+        if (r.cap_repair == null) {
+          r.cap_repair = tariffs.cap_repair;
+        }
+        if (r.invoice_sum == null) {
+          r.invoice_sum = +(
+            (Number(r.cost_water)||0) + (Number(r.cost_sewage)||0) +
+            (Number(r.cost_t1)||0) + (Number(r.cost_t2)||0) +
+            (Number(tariffs.other_services)||0)
+          ).toFixed(2);
+        }
+        if (r.total == null) {
+          r.total = +(
+            (Number(r.invoice_sum)||0) + (Number(r.cost_gas)||0) + (Number(r.cap_repair)||0)
+          ).toFixed(2);
+        }
+      }
+    }
+
+    function recalcKirby() {
+      const list = data.kirby;
+      for (let i = 0; i < list.length; i++) {
+        const r = list[i];
+        const prev = i > 0 ? list[i - 1] : null;
+        if (prev && r.elec != null && prev.elec != null) r.cons_elec = r.elec - prev.elec;
+        if (prev && r.gas != null && prev.gas != null) r.cons_gas = r.gas - prev.gas;
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify({ data, tariffs, services, payments, meters: METERS_INFO }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'schetchiki-backup.json';
+      a.click();
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
