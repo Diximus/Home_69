@@ -21,15 +21,26 @@
       --warning: #fbbf24;
       --danger: #f87171;
     }
+    html.light {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+    }
     body {
       background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
       min-height: 100vh;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
+    html.light body {
+      background: linear-gradient(160deg, #f1f5f9 0%, #e0e7ff 50%, #f1f5f9 100%);
+    }
     .glass {
       background: rgba(30, 41, 59, 0.75);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    html.light .glass {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(100, 116, 139, 0.2);
     }
     .card-hover:hover {
       transform: translateY(-2px);
@@ -40,6 +51,14 @@
       color: #0f172a;
       font-weight: 600;
     }
+    html.light .nav-btn:not(.active) {
+      background: rgba(226, 232, 240, 0.8) !important;
+      color: #334155 !important;
+    }
+    html.light .tab-btn.active {
+      border-bottom-color: #0284c7;
+      color: #0284c7;
+    }
     .tab-btn.active {
       border-bottom: 2px solid #38bdf8;
       color: #38bdf8;
@@ -49,9 +68,17 @@
       border: 1px solid #334155 !important;
       color: #e2e8f0 !important;
     }
+    html.light input, html.light select {
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+    }
     input[type="month"] {
       color-scheme: dark;
       min-height: 2.75rem;
+    }
+    html.light input[type="month"] {
+      color-scheme: light;
     }
     input[type="month"]::-webkit-calendar-picker-indicator {
       filter: invert(0.8);
@@ -62,6 +89,10 @@
       outline: none;
       border-color: #38bdf8 !important;
       box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    html.light input:focus, html.light select:focus {
+      border-color: #0284c7 !important;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
     }
     .reminder-pulse {
       animation: pulse 2s infinite;
@@ -74,6 +105,23 @@
     .scroll-thin::-webkit-scrollbar-track { background: transparent; }
     .scroll-thin::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
     table th { position: sticky; top: 0; background: #1e293b; z-index: 10; }
+    html.light table th { background: #f8fafc; }
+    /* --- Светлая тема: переопределение utility-классов Tailwind --- */
+    html.light body { color: #1e293b !important; }
+    html.light .text-slate-900, html.light .text-slate-800, html.light .text-slate-700,
+    html.light .text-slate-600, html.light .text-slate-500, html.light .text-slate-400,
+    html.light .text-slate-300, html.light .text-slate-200, html.light .text-slate-100 { color: #334155 !important; }
+    html.light .text-white { color: #0f172a !important; }
+    html.light .text-sky-300 { color: #0369a1 !important; }
+    html.light .text-sky-400:hover { color: #0369a1 !important; }
+    html.light .text-emerald-300 { color: #047857 !important; }
+    html.light .text-violet-300 { color: #6d28d9 !important; }
+    html.light .text-amber-200 { color: #92400e !important; }
+    html.light .text-rose-300 { color: #be123c !important; }
+    html.light .bg-slate-800\/60, html.light .bg-slate-800\/50 { background-color: rgba(226, 232, 240, 0.7) !important; }
+    html.light .hover\:bg-slate-700\/50:hover { background-color: rgba(203, 213, 225, 0.6) !important; }
+    html.light .border-slate-700\/50, html.light .border-slate-700\/60 { border-color: rgba(148, 163, 184, 0.35) !important; }
+    html.light .divide-slate-700\/50 > * + * { border-color: rgba(148, 163, 184, 0.3) !important; }
     .badge {
       font-size: 0.7rem;
       padding: 0.15rem 0.5rem;
@@ -95,10 +143,13 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span id="sync-status" class="text-xs text-slate-500 hidden md:inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800/50" title="Статус синхронизации">
-          <i class="fas fa-cloud text-slate-400"></i>
-          <span id="sync-text">Локально</span>
+        <span id="sync-status" class="inline-flex items-center justify-center w-9 h-9 rounded-lg" title="Синхронизация: локально">
+          <i id="sync-icon" class="fas fa-cloud text-xl text-slate-400"></i>
+          <span id="sync-text" class="sr-only">Локально</span>
         </span>
+        <button id="btn-theme" class="p-2 rounded-lg hover:bg-slate-700/50 transition" title="Переключить тему (тёмная/светлая)">
+          <i id="theme-icon" class="fas fa-sun text-slate-300"></i>
+        </button>
         <button id="btn-reminder" class="relative p-2 rounded-lg hover:bg-slate-700/50 transition" title="Напоминания">
           <i class="fas fa-bell text-slate-300"></i>
           <span id="reminder-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full reminder-pulse"></span>
@@ -232,7 +283,7 @@
             Сохранить показания
           </button>
         </form>
-        <p class="text-xs text-slate-500 mt-3 text-center">Данные сохраняются локально и синхронизируются через Firebase (если настроено)</p>
+        <p class="text-xs text-slate-500 mt-3 text-center">Данные сохраняются локально. Статус облака — на иконке в шапке.</p>
       </div>
     </div>
 
@@ -501,14 +552,22 @@
       localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(cfg));
     }
 
+    const SYNC_ICON_COLORS = ['text-slate-400', 'text-emerald-500', 'text-rose-500', 'text-amber-500'];
     function setSyncStatus(text, colorClass = 'text-slate-400') {
       const el = document.getElementById('sync-text');
       const status = document.getElementById('sync-status');
+      const icon = document.getElementById('sync-icon');
       if (el) {
         el.textContent = text;
-        el.className = colorClass;
+        el.className = 'sr-only ' + colorClass;
       }
-      if (status) status.classList.remove('hidden');
+      if (icon) {
+        icon.className = 'fas fa-cloud text-xl ' + colorClass;
+      }
+      if (status) {
+        status.classList.remove('hidden');
+        status.title = 'Синхронизация: ' + text.toLowerCase();
+      }
     }
 
     async function initFirebase() {
@@ -1162,8 +1221,8 @@
         maintainAspectRatio: true,
         plugins: { legend: { display: false } },
         scales: {
-          x: { ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 } }, grid: { color: 'rgba(148,163,184,0.08)' } },
-          y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: 'rgba(148,163,184,0.08)' } }
+          x: { ticks: { color: themeChartColor(), maxRotation: 45, font: { size: 10 } }, grid: { color: themeGridColor() } },
+          y: { ticks: { color: themeChartColor(), font: { size: 10 } }, grid: { color: themeGridColor() } }
         }
       };
 
@@ -1193,7 +1252,7 @@
               { label: 'Т2', data: rows.map(r => r.cons_t2), backgroundColor: 'rgba(167,139,250,0.7)' }
             ]
           },
-          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } }
+          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: themeChartColor() } } } }
         });
         charts.cost = new Chart(document.getElementById('chart-cost'), {
           type: 'line',
@@ -1207,7 +1266,7 @@
         charts.water = new Chart(document.getElementById('chart-water'), {
           type: 'line',
           data: { labels, datasets: [{ data: rows.map(r => r.cons_elec), borderColor: '#facc15', fill: true, tension: 0.3, pointRadius: 2, backgroundColor: 'rgba(250,204,21,0.15)' }] },
-          options: { ...commonOpts, plugins: { ...commonOpts.plugins, title: { display: true, text: 'Потр. электричества', color: '#94a3b8' } } }
+          options: { ...commonOpts, plugins: { ...commonOpts.plugins, title: { display: true, text: 'Потр. электричества', color: themeChartColor() } } }
         });
         charts.gas = new Chart(document.getElementById('chart-gas'), {
           type: 'line',
@@ -1224,7 +1283,7 @@
               { label: 'Газ', data: rows.map(r => r.paid_gas), backgroundColor: 'rgba(251,146,60,0.6)' }
             ]
           },
-          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: '#94a3b8' } } } }
+          options: { ...commonOpts, plugins: { legend: { display: true, labels: { color: themeChartColor() } } } }
         });
         charts.cost = new Chart(document.getElementById('chart-cost'), {
           type: 'line',
@@ -1623,6 +1682,7 @@
 
       document.getElementById('btn-settings').addEventListener('click', openSettings);
       document.getElementById('btn-reminder').addEventListener('click', openReminders);
+      document.getElementById('btn-theme').addEventListener('click', toggleTheme);
       document.getElementById('modal-close').addEventListener('click', () => {
         document.getElementById('modal-overlay').classList.add('hidden');
       });
@@ -1630,6 +1690,41 @@
         if (e.target.id === 'modal-overlay') e.target.classList.add('hidden');
       });
     }
+
+    // ========== ТЕМА (тёмная / светлая) ==========
+    const THEME_KEY = 'meters_app_theme';
+
+    function themeChartColor() {
+      return document.documentElement.classList.contains('light') ? '#475569' : '#94a3b8';
+    }
+    function themeGridColor() {
+      return document.documentElement.classList.contains('light') ? 'rgba(100,116,139,0.18)' : 'rgba(148,163,184,0.08)';
+    }
+
+    function applyTheme(mode) {
+      const isLight = mode === 'light';
+      document.documentElement.classList.toggle('light', isLight);
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.className = 'fas ' + (isLight ? 'fa-moon text-slate-600' : 'fa-sun text-slate-300');
+      }
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isLight ? '#f1f5f9' : '#0f172a');
+    }
+
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+      applyTheme(isLight ? 'light' : 'dark');
+      // перерисовываем графики под новую тему, если вкладка с графиками существует
+      try { renderCharts(); } catch (e) {}
+    }
+
+    // Применяем сохранённую тему сразу (до init)
+    (function () {
+      const saved = localStorage.getItem(THEME_KEY);
+      applyTheme(saved === 'light' ? 'light' : 'dark');
+    })();
 
     function monthToKey(ym) {
       // "2026-11" -> "11/26"
@@ -1758,7 +1853,7 @@
           <hr class="border-slate-700" />
           <div class="space-y-2">
             <button onclick="exportData()" class="w-full py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 transition">Экспорт данных (JSON)</button>
-            <button onclick="if(confirm('Сбросить все локальные данные и конфиг Firebase?')){localStorage.clear();location.reload()}" class="w-full py-2.5 rounded-lg bg-rose-900/40 text-rose-300 hover:bg-rose-900/60 transition">Сбросить данные</button>
+            <button onclick="if(confirm('Сбросить все локальные данные и конфиг Firebase?')){const t=localStorage.getItem('meters_app_theme');localStorage.clear();if(t)localStorage.setItem('meters_app_theme',t);location.reload()}" class="w-full py-2.5 rounded-lg bg-rose-900/40 text-rose-300 hover:bg-rose-900/60 transition">Сбросить данные</button>
           </div>
           <p class="text-xs text-slate-500">Данные кэшируются в браузере + синхронизируются через Firestore. Работает офлайн.</p>
         </div>
