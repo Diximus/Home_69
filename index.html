@@ -894,7 +894,7 @@ function scheduleCloudPush() {
 
         el.className = 'grid grid-cols-2 md:grid-cols-3 gap-3 mb-6';
         el.innerHTML = `
-          <div class="glass rounded-2xl p-4 card-hover transition flex flex-col border-l-4 border-emerald-400/70">
+          <div class="glass rounded-2xl p-4 card-hover transition flex flex-col">
             <div class="text-xs text-slate-400 mb-1"><i class="fas fa-file-invoice-dollar mr-1 ${billPaid ? 'text-emerald-400' : 'text-rose-400'}"></i>Сумма по счёт-фактуре</div>
             <div class="text-2xl font-bold ${billPaid ? 'text-emerald-300' : 'text-rose-400'}">${invBill != null ? fmt2(invBill) : '—'} ₽</div>
             <div class="text-xs text-slate-400 mt-1">${month || '—'} · вода+кан. ${fmt2(Math.round(costWcalc*100)/100)} · эл. ${fmt2(Math.round(costEcalc*100)/100)} · ЖКХ ${fmt2(svcSum)}</div>
