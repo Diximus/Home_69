@@ -870,7 +870,7 @@ function scheduleCloudPush() {
         const costE = (last?.cost_t1 != null || last?.cost_t2 != null)
           ? (Number(last.cost_t1 || 0) + Number(last.cost_t2 || 0))
           : (consE ? consT1 * tariffs.t1 + consT2 * tariffs.t2 : null);
-        const total = last?.total ?? last?.invoice_sum ?? null;
+        const manualInvoice = payments['69']?.[month]?.invoice_amount;
         const cap = last?.cap_repair != null ? Number(last.cap_repair) : (tariffs.cap_repair || 0);
         const capKey = 'cap_' + month;
         const gasKey = 'gas_' + month;
@@ -883,6 +883,10 @@ function scheduleCloudPush() {
         const costWcalc = (consW || 0) * (tariffs.water + tariffs.sewage);
         const invBill = consW != null
           ? Math.round((costWcalc + costEcalc + svcSum) * 100) / 100 : null;
+        const invoiceAmount = manualInvoice != null ? Number(manualInvoice) : invBill;
+        const total = manualInvoice != null
+          ? Math.round((Number(manualInvoice) + (Number(costG) || 0) + (Number(cap) || 0)) * 100) / 100
+          : (last?.total ?? last?.invoice_sum ?? null);
         const fmt2 = v => v.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const payBtn = (paid, fn, m) => `
           <button type="button" data-pay-fn="${fn}" data-pay-month="${m}"
@@ -896,8 +900,8 @@ function scheduleCloudPush() {
         el.innerHTML = `
           <div class="glass rounded-2xl p-4 card-hover transition flex flex-col">
             <div class="text-xs text-slate-400 mb-1"><i class="fas fa-file-invoice-dollar mr-1 ${billPaid ? 'text-emerald-400' : 'text-rose-400'}"></i>Сумма по счёт-фактуре</div>
-            <div class="text-2xl font-bold ${billPaid ? 'text-emerald-300' : 'text-rose-400'}">${invBill != null ? fmt2(invBill) : '—'} ₽</div>
-            <div class="text-xs text-slate-400 mt-1">${month || '—'} · вода+кан. ${fmt2(Math.round(costWcalc*100)/100)} · эл. ${fmt2(Math.round(costEcalc*100)/100)} · ЖКХ ${fmt2(svcSum)}</div>
+            <div class="text-2xl font-bold ${billPaid ? 'text-emerald-300' : 'text-rose-400'}">${invoiceAmount != null ? fmt2(invoiceAmount) : '—'} ₽</div>
+            <div class="text-xs text-slate-400 mt-1">${month || '—'}${manualInvoice != null ? ' · актуальная сумма введена вручную' : ` · вода+кан. ${fmt2(Math.round(costWcalc*100)/100)} · эл. ${fmt2(Math.round(costEcalc*100)/100)} · ЖКХ ${fmt2(svcSum)}`}</div>
             ${payBtn(billPaid, 'toggleBillPaid', month)}
           </div>
           <div class="glass rounded-2xl p-4 card-hover transition flex flex-col">
@@ -1494,35 +1498,58 @@ function scheduleCloudPush() {
       const aptKey = currentApt === '69' ? '69' : 'kirby';
       if (!payments[aptKey]) payments[aptKey] = {};
 
+      const invoiceHeader = document.querySelector('#tab-payments thead th:nth-child(4)');
+      if (invoiceHeader) invoiceHeader.textContent = aptKey === '69' ? 'Актуальная сумма счёта ₽' : 'Оплачено ₽';
+      const hint = document.querySelector('#tab-payments .border-b p');
+      if (hint) hint.textContent = aptKey === '69'
+        ? 'Введите фактическую сумму счёта. Отметку об оплате ставьте отдельно.'
+        : 'Введите оплаченную сумму — месяц будет отмечен как оплаченный';
+
       tbody.innerHTML = rows.map(r => {
-        let inv = null;
-        let total = null;
-        if (aptKey === '69') {
-          inv = r.invoice_sum != null ? Number(r.invoice_sum) : null;
-          total = r.total != null ? Number(r.total) : (inv != null ? inv + (tariffs.other_services || 0) : null);
-        } else {
-          // Кирби: квартплата + газ из строки
-          inv = r.paid_rent != null ? Number(r.paid_rent) : null;
-          total = ((r.paid_rent || 0) + (r.paid_gas || 0)) || null;
-          if (total === 0) total = null;
-        }
         const p = payments[aptKey][r.month] || {};
         const paidVal = p.paid != null ? p.paid : '';
-        const isPaid = p.paid != null && p.paid > 0;
-        const status = isPaid
-          ? '<span class="badge bg-emerald-500/20 text-emerald-300">Оплачено</span>'
-          : '<span class="badge bg-slate-600 text-slate-300">Не оплачено</span>';
+        const isPaid = p.paid != null;
         const capKey = 'cap_' + r.month;
         const gasKey = 'gas_' + r.month;
         const capP = payments[aptKey][capKey];
         const gasP = payments[aptKey][gasKey];
-        const capAmt = r.cap_repair != null ? Number(r.cap_repair) : (aptKey === '69' ? tariffs.cap_repair : null);
+        let inv = null;
+        let total = null;
         let gasAmt = null;
+        let capAmt = null;
+
         if (aptKey === '69') {
-          gasAmt = r.cost_gas != null ? Number(r.cost_gas) : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+          inv = p.invoice_amount != null
+            ? Number(p.invoice_amount)
+            : (r.invoice_sum != null ? Number(r.invoice_sum) : null);
+          gasAmt = r.cost_gas != null ? Number(r.cost_gas)
+            : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+          capAmt = r.cap_repair != null ? Number(r.cap_repair) : (tariffs.cap_repair || 0);
+          total = inv != null
+            ? Math.round((inv + (Number(gasAmt) || 0) + (Number(capAmt) || 0)) * 100) / 100
+            : null;
         } else {
-          gasAmt = r.paid_gas != null ? Number(r.paid_gas) : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+          inv = r.paid_rent != null ? Number(r.paid_rent) : null;
+          total = ((r.paid_rent || 0) + (r.paid_gas || 0)) || null;
+          if (total === 0) total = null;
+          gasAmt = r.paid_gas != null ? Number(r.paid_gas)
+            : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
         }
+
+        const status = isPaid
+          ? '<span class="badge bg-emerald-500/20 text-emerald-300">Счёт оплачен</span>'
+          : '<span class="badge bg-slate-600 text-slate-300">Счёт не оплачен</span>';
+        const invoiceField = aptKey === '69'
+          ? `<input type="number" step="0.01" data-invoice-month="${r.month}" value="${p.invoice_amount ?? ''}"
+              class="w-32 rounded-lg px-2 py-1.5 text-sm" placeholder="${inv != null ? Number(inv).toFixed(2) : 'Введите сумму'}"
+              onchange="setInvoiceAmount('69', '${r.month}', this.value)" />`
+          : `<input type="number" step="0.01" data-pay-month="${r.month}" value="${paidVal}"
+              class="w-28 rounded-lg px-2 py-1.5 text-sm" placeholder="0"
+              onchange="setPaid('kirby', '${r.month}', this.value)" />`;
+
+        const billAction = isPaid
+          ? `<button onclick="toggleBillPaid('${r.month}')" class="text-xs text-emerald-400 hover:underline">Снять отметку</button>`
+          : `<button onclick="toggleBillPaid('${r.month}')" class="text-xs text-sky-400 hover:underline">Отметить счёт оплаченным</button>`;
         const capStatus = aptKey === '69'
           ? (capP?.paid != null
             ? '<span class="badge bg-violet-500/20 text-violet-300">Капремонт ✓</span>'
@@ -1534,15 +1561,33 @@ function scheduleCloudPush() {
         return `<tr class="hover:bg-slate-700/30">
           <td class="px-3 py-2.5 font-medium whitespace-nowrap">${r.month}</td>
           <td class="px-3 py-2.5">${inv != null ? inv.toLocaleString('ru-RU', {maximumFractionDigits: 2}) : '—'}</td>
-          <td class="px-3 py-2.5 font-medium">${total != null ? total.toLocaleString('ru-RU', {maximumFractionDigits: 0}) : '—'}</td>
-          <td class="px-3 py-2.5">
-            <input type="number" step="0.01" data-pay-month="${r.month}" value="${paidVal}"
-              class="w-28 rounded-lg px-2 py-1.5 text-sm" placeholder="0"
-              onchange="setPaid('${aptKey}', '${r.month}', this.value)" />
-          </td>
-          <td class="px-3 py-2.5 space-x-1">${status} ${gasStatus} ${capStatus}</td>
+          <td class="px-3 py-2.5 font-medium">${total != null ? total.toLocaleString('ru-RU', {maximumFractionDigits: 2}) : '—'}</td>
+          <td class="px-3 py-2.5">${invoiceField}</td>
+          <td class="px-3 py-2.5 space-x-1 space-y-1">${status} ${aptKey === '69' ? billAction : ''} ${gasStatus} ${capStatus}</td>
         </tr>`;
       }).join('');
+    }
+
+    function setInvoiceAmount(aptKey, month, value) {
+      if (!payments[aptKey]) payments[aptKey] = {};
+      const num = value.trim() === '' ? null : Number(value);
+      if (num != null && (!Number.isFinite(num) || num < 0)) {
+        alert('Укажи корректную сумму счёта');
+        renderPayments();
+        return;
+      }
+      const entry = payments[aptKey][month] || {};
+      if (num == null) {
+        delete entry.invoice_amount;
+      } else {
+        entry.invoice_amount = Math.round(num * 100) / 100;
+      }
+      if (Object.keys(entry).length) payments[aptKey][month] = entry;
+      else delete payments[aptKey][month];
+      savePayments();
+      renderPayments();
+      renderDashboard();
+      renderHistory();
     }
 
     function setPaid(aptKey, month, value) {
