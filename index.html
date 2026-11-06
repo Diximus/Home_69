@@ -614,9 +614,8 @@ async function initPocketBase() {
         // Создаём запись main
         record = await pb.collection(PB_COLLECTION).create({
           id: PB_RECORD_ID,
-          data: { apt69: data.apt69, kirby: data.kirby },
+          data: { apt69: data.apt69, kirby: data.kirby, kirbyTariff },
           tariffs,
-          kirbyTariff,
           services,
           payments,
           meters: METERS_INFO,
@@ -664,8 +663,9 @@ function applyCloudData(cloud, isInitial) {
       data.kirby = cloud.data.kirby || data.kirby || [];
     }
     if (cloud.tariffs) tariffs = { ...tariffs, ...cloud.tariffs };
-    if (cloud.kirbyTariff != null && Number.isFinite(Number(cloud.kirbyTariff))) {
-      kirbyTariff = Number(cloud.kirbyTariff);
+    const cloudKirbyTariff = cloud.data?.kirbyTariff ?? cloud.kirbyTariff;
+    if (cloudKirbyTariff != null && Number.isFinite(Number(cloudKirbyTariff)) && Number(cloudKirbyTariff) >= 0) {
+      kirbyTariff = Number(cloudKirbyTariff);
     }
     if (cloud.services) services = cloud.services;
     if (cloud.payments) {
@@ -695,9 +695,8 @@ async function pushToCloud() {
   try {
     setSyncStatus('Сохранение…', 'text-amber-400');
     const payload = {
-      data: { apt69: data.apt69, kirby: data.kirby },
+      data: { apt69: data.apt69, kirby: data.kirby, kirbyTariff },
       tariffs,
-      kirbyTariff,
       services,
       payments: JSON.parse(JSON.stringify(payments)),
       meters: METERS_INFO,
