@@ -1677,7 +1677,7 @@ function scheduleCloudPush() {
         if (oldMonth !== newMonth) {
           const aptKey = currentApt === '69' ? '69' : 'kirby';
           if (payments[aptKey]) {
-            ['', 'gas_', 'cap_'].forEach(prefix => {
+            ['', 'gas_', 'cap_', 'rent_'].forEach(prefix => {
               const oldK = prefix + oldMonth;
               const newK = prefix + newMonth;
               if (payments[aptKey][oldK] != null) {
