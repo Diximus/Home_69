@@ -311,7 +311,7 @@
     <div id="tab-tariffs" class="tab-content hidden">
       <div class="space-y-5">
         <!-- Variable tariffs (meters) -->
-        <div class="glass rounded-2xl p-5">
+        <div id="apt69-tariffs-card" class="glass rounded-2xl p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold">Тарифы по приборам учёта</h3>
             <button id="btn-save-tariffs" class="px-4 py-2 rounded-lg bg-sky-500/20 text-sky-300 text-sm font-medium hover:bg-sky-500/30 transition">
@@ -325,7 +325,7 @@
         </div>
 
         <!-- Housing services (ЖКХ) -->
-        <div class="glass rounded-2xl p-5">
+        <div id="apt69-services-card" class="glass rounded-2xl p-5">
           <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h3 class="text-lg font-semibold">Услуги ЖКХ (содержание + прочие)</h3>
             <button id="btn-add-service" class="px-3 py-2 rounded-lg bg-slate-700 text-sm hover:bg-slate-600 transition">
@@ -354,6 +354,18 @@
             </table>
           </div>
           <p class="text-xs text-slate-500 mt-3">Сумма «Начислено» всех услуг подставляется в расчёт счёта как «Прочие услуги / ЖКХ». Логика: за м² (площадь 46,8), с человека или фиксированно за квартиру.</p>
+        </div>
+
+        <div id="kirby-tariff-card" class="glass rounded-2xl p-5 hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Тариф электричества — Кирби</h3>
+            <button id="btn-save-kirby-tariff" type="button" class="px-4 py-2 rounded-lg bg-sky-500/20 text-sky-300 text-sm font-medium hover:bg-sky-500/30 transition">
+              <i class="fas fa-save mr-1"></i>Сохранить тариф
+            </button>
+          </div>
+          <label for="kirby-tariff-input" class="block text-sm text-slate-400 mb-1">Одноставочный тариф (₽/кВт·ч)</label>
+          <input id="kirby-tariff-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Введите тариф" class="w-full sm:max-w-sm rounded-lg px-3 py-2.5" />
+          <p class="text-xs text-slate-500 mt-3">Тариф Кирби независим от тарифов квартиры 69. Стоимость электроэнергии рассчитывается как потребление × этот тариф.</p>
         </div>
       </div>
     </div>
@@ -535,6 +547,7 @@
     let currentApt = '69';
     let data = { apt69: [], kirby: [] };
     let tariffs = { ...DEFAULT_TARIFFS };
+    let kirbyTariff = null; // отдельный одноставочный тариф Кирби, ₽/кВт·ч
     let services = JSON.parse(JSON.stringify(DEFAULT_SERVICES));
     let payments = {}; // { "69": { "10/26": { paid: 4500, manual: true }, ... }, "kirby": {} }
     let charts = {};
@@ -603,6 +616,7 @@ async function initPocketBase() {
           id: PB_RECORD_ID,
           data: { apt69: data.apt69, kirby: data.kirby },
           tariffs,
+          kirbyTariff,
           services,
           payments,
           meters: METERS_INFO,
@@ -650,6 +664,9 @@ function applyCloudData(cloud, isInitial) {
       data.kirby = cloud.data.kirby || data.kirby || [];
     }
     if (cloud.tariffs) tariffs = { ...tariffs, ...cloud.tariffs };
+    if (cloud.kirbyTariff != null && Number.isFinite(Number(cloud.kirbyTariff))) {
+      kirbyTariff = Number(cloud.kirbyTariff);
+    }
     if (cloud.services) services = cloud.services;
     if (cloud.payments) {
       payments = JSON.parse(JSON.stringify(cloud.payments));
@@ -662,6 +679,7 @@ function applyCloudData(cloud, isInitial) {
 
     localStorage.setItem('meters_app_data', JSON.stringify(data));
     localStorage.setItem('meters_app_tariffs', JSON.stringify(tariffs));
+    if (kirbyTariff != null) localStorage.setItem('meters_app_kirby_tariff', String(kirbyTariff));
     localStorage.setItem('meters_app_services', JSON.stringify(services));
     localStorage.setItem('meters_app_payments', JSON.stringify(payments));
     localStorage.setItem('meters_app_meters', JSON.stringify(METERS_INFO));
@@ -679,6 +697,7 @@ async function pushToCloud() {
     const payload = {
       data: { apt69: data.apt69, kirby: data.kirby },
       tariffs,
+      kirbyTariff,
       services,
       payments: JSON.parse(JSON.stringify(payments)),
       meters: METERS_INFO,
@@ -716,7 +735,7 @@ function scheduleCloudPush() {
         document.body.appendChild(banner);
         document.getElementById('btn-hard-reset').onclick = function() {
           try {
-            ['meters_app_data','meters_app_tariffs','meters_app_services','meters_app_payments','meters_app_meters','meters_app_data_version','meters_app_firebase_config']
+            ['meters_app_data','meters_app_tariffs','meters_app_kirby_tariff','meters_app_services','meters_app_payments','meters_app_meters','meters_app_data_version','meters_app_firebase_config']
               .forEach(k => localStorage.removeItem(k));
           } catch(e) {}
           location.reload();
@@ -768,6 +787,10 @@ function scheduleCloudPush() {
         const storedTariffs = localStorage.getItem('meters_app_tariffs');
         const parsedTariffs = safeJsonParse(storedTariffs, null);
         if (parsedTariffs) tariffs = Object.assign({}, DEFAULT_TARIFFS, parsedTariffs);
+
+        const storedKirbyTariff = localStorage.getItem('meters_app_kirby_tariff');
+        const parsedKirbyTariff = storedKirbyTariff == null ? null : Number(storedKirbyTariff);
+        kirbyTariff = Number.isFinite(parsedKirbyTariff) && parsedKirbyTariff >= 0 ? parsedKirbyTariff : null;
 
         const storedServices = localStorage.getItem('meters_app_services');
         const parsedServices = safeJsonParse(storedServices, null);
@@ -834,6 +857,13 @@ function scheduleCloudPush() {
       renderMeters();
       renderTariffsForm();
       renderServices();
+      const apt69Tariffs = document.getElementById('apt69-tariffs-card');
+      const apt69Services = document.getElementById('apt69-services-card');
+      const kirbyTariffCard = document.getElementById('kirby-tariff-card');
+      if (apt69Tariffs) apt69Tariffs.classList.toggle('hidden', currentApt !== '69');
+      if (apt69Services) apt69Services.classList.toggle('hidden', currentApt !== '69');
+      if (kirbyTariffCard) kirbyTariffCard.classList.toggle('hidden', currentApt !== 'kirby');
+      renderKirbyTariffForm();
       renderPayments();
       if (!document.getElementById('tab-charts').classList.contains('hidden')) {
         renderCharts();
@@ -951,7 +981,7 @@ function scheduleCloudPush() {
 
         const kConsE = Number(last?.cons_elec) || 0;
         const kConsG = Number(last?.cons_gas) || 0;
-        const kCostE = Math.round(kConsE * (tariffs.t1 || 0) * 100) / 100;
+        const kCostE = kirbyTariff == null ? null : Math.round(kConsE * kirbyTariff * 100) / 100;
         const kCostG = Math.round(kConsG * (tariffs.gas || 0) * 100) / 100;
         const fmt2k = v => v.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const payBtnK = (paid, fn, m, label) => `
@@ -966,8 +996,8 @@ function scheduleCloudPush() {
         el.innerHTML = `
           <div class="glass rounded-2xl p-4 card-hover transition flex flex-col">
             <div class="text-xs text-slate-400 mb-1"><i class="fas fa-bolt mr-1 text-yellow-400"></i>Электричество</div>
-            <div class="text-2xl font-bold text-yellow-300">${fmt2k(kCostE)} ₽</div>
-            <div class="text-xs text-slate-400 mt-1">+${consE} кВт·ч · счётчик ${last?.elec ?? '—'}</div>
+            <div class="text-2xl font-bold text-yellow-300">${kCostE == null ? '—' : fmt2k(kCostE) + ' ₽'}</div>
+            <div class="text-xs text-slate-400 mt-1">+${consE} кВт·ч · тариф ${kirbyTariff == null ? 'не задан' : fmt2k(kirbyTariff) + ' ₽/кВт·ч'} · счётчик ${last?.elec ?? '—'}</div>
           </div>
           <div class="glass rounded-2xl p-4 card-hover transition flex flex-col">
             <div class="text-xs text-slate-400 mb-1"><i class="fas fa-fire mr-1 ${gasPaid ? 'text-orange-400' : 'text-rose-400'}"></i>Газ</div>
@@ -1023,7 +1053,7 @@ function scheduleCloudPush() {
         } else {
           const row = data.kirby.find(r => r.month === month);
           if (row) {
-            const kCostE = Math.round((Number(row.cons_elec) || 0) * (tariffs.t1 || 0) * 100) / 100;
+            const kCostE = kirbyTariff == null ? 0 : Math.round((Number(row.cons_elec) || 0) * kirbyTariff * 100) / 100;
             const kCostG = Math.round((Number(row.cons_gas) || 0) * (tariffs.gas || 0) * 100) / 100;
             amount = Math.round((kCostE + kCostG) * 100) / 100;
           }
@@ -1331,6 +1361,27 @@ function scheduleCloudPush() {
         const diffMonths = (next.getFullYear() - now.getFullYear()) * 12 + (next.getMonth() - now.getMonth());
         return diffMonths <= 6 && diffMonths >= 0;
       } catch { return false; }
+    }
+
+    function renderKirbyTariffForm() {
+      const input = document.getElementById('kirby-tariff-input');
+      if (input) input.value = kirbyTariff == null ? '' : String(kirbyTariff);
+    }
+
+    function saveKirbyTariff() {
+      const input = document.getElementById('kirby-tariff-input');
+      const raw = input?.value.trim() ?? '';
+      const value = raw === '' ? NaN : Number(raw);
+      if (!Number.isFinite(value) || value < 0) {
+        alert('Введите корректный тариф Кирби (неотрицательное число)');
+        return;
+      }
+      kirbyTariff = Math.round(value * 10000) / 10000;
+      localStorage.setItem('meters_app_kirby_tariff', String(kirbyTariff));
+      scheduleCloudPush();
+      renderKirbyTariffForm();
+      renderDashboard();
+      alert('Тариф Кирби сохранён');
     }
 
     function renderTariffsForm() {
@@ -1697,6 +1748,8 @@ function scheduleCloudPush() {
         if (e.target.id === 'edit-modal') closeEditModal();
       });
 
+      document.getElementById('btn-save-kirby-tariff').addEventListener('click', saveKirbyTariff);
+
       document.getElementById('btn-save-tariffs').addEventListener('click', () => {
         // variable tariffs
         document.querySelectorAll('[data-tariff]').forEach(inp => {
@@ -1940,6 +1993,9 @@ async function importFromJson() {
     }
 
     if (json.tariffs) tariffs = Object.assign({}, DEFAULT_TARIFFS, json.tariffs);
+    if (json.kirbyTariff != null && Number.isFinite(Number(json.kirbyTariff)) && Number(json.kirbyTariff) >= 0) {
+      kirbyTariff = Number(json.kirbyTariff);
+    }
     if (json.services) services = json.services;
     if (json.payments) {
       payments = json.payments;
@@ -1951,6 +2007,7 @@ async function importFromJson() {
     // Сохраняем локально
     localStorage.setItem('meters_app_data', JSON.stringify(data));
     localStorage.setItem('meters_app_tariffs', JSON.stringify(tariffs));
+    if (kirbyTariff != null) localStorage.setItem('meters_app_kirby_tariff', String(kirbyTariff));
     localStorage.setItem('meters_app_services', JSON.stringify(services));
     localStorage.setItem('meters_app_payments', JSON.stringify(payments));
     localStorage.setItem('meters_app_meters', JSON.stringify(METERS_INFO));
@@ -2135,7 +2192,7 @@ async function importFromJson() {
     }
 
     function exportData() {
-      const blob = new Blob([JSON.stringify({ data, tariffs, services, payments, meters: METERS_INFO }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ data, tariffs, kirbyTariff, services, payments, meters: METERS_INFO }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'schetchiki-backup.json';
