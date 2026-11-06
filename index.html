@@ -1038,27 +1038,44 @@ function scheduleCloudPush() {
       if (!month) return;
       const aptKey = currentApt === '69' ? '69' : 'kirby';
       if (!payments[aptKey]) payments[aptKey] = {};
-      if (payments[aptKey][month]?.paid != null) {
-        delete payments[aptKey][month];
-      } else {
-        let amount = null;
-        if (aptKey === '69') {
+      const currentEntry = payments[aptKey][month] || {};
+
+      if (aptKey === '69') {
+        // Keep the manually entered invoice amount independent from the paid status.
+        if (currentEntry.paid != null) {
+          const { paid, manual, type, ...preserved } = currentEntry;
+          if (Object.keys(preserved).length) payments[aptKey][month] = preserved;
+          else delete payments[aptKey][month];
+        } else {
           const row = data.apt69.find(r => r.month === month);
           const consT1 = Number(row?.cons_t1) || 0;
           const consT2 = Number(row?.cons_t2) || 0;
           const consW = Number(row?.cons_water) || 0;
           const svcSum = tariffs.other_services || 0;
-          if (row) amount = Math.round((consW * ((tariffs.water || 0) + (tariffs.sewage || 0))
-            + consT1 * (tariffs.t1 || 0) + consT2 * (tariffs.t2 || 0) + svcSum) * 100) / 100;
+          const calculatedAmount = row
+            ? Math.round((consW * ((tariffs.water || 0) + (tariffs.sewage || 0))
+              + consT1 * (tariffs.t1 || 0) + consT2 * (tariffs.t2 || 0) + svcSum) * 100) / 100
+            : 0;
+          payments[aptKey][month] = {
+            ...currentEntry,
+            paid: currentEntry.invoice_amount != null ? Number(currentEntry.invoice_amount) : calculatedAmount,
+            manual: true,
+            type: 'invoice'
+          };
+        }
+      } else {
+        if (currentEntry.paid != null) {
+          delete payments[aptKey][month];
         } else {
           const row = data.kirby.find(r => r.month === month);
+          let amount = null;
           if (row) {
             const kCostE = kirbyTariff == null ? 0 : Math.round((Number(row.cons_elec) || 0) * kirbyTariff * 100) / 100;
             const kCostG = Math.round((Number(row.cons_gas) || 0) * (tariffs.gas || 0) * 100) / 100;
             amount = Math.round((kCostE + kCostG) * 100) / 100;
           }
+          payments[aptKey][month] = { paid: amount || 0, manual: true, type: 'invoice' };
         }
-        payments[aptKey][month] = { paid: amount || 0, manual: true, type: 'invoice' };
       }
       savePayments();
       renderDashboard();
