@@ -452,16 +452,9 @@
             <label class="block text-sm text-slate-400 mb-1">Газ</label>
             <input type="number" step="1" id="edit-gas-k" class="w-full rounded-lg px-3 py-2.5" />
           </div>
-          <div>
-            <label class="block text-sm text-slate-400 mb-1">Квартплата ₽</label>
-            <input type="number" step="0.01" id="edit-paid-rent" class="w-full rounded-lg px-3 py-2.5" />
-          </div>
-          <div>
-            <label class="block text-sm text-slate-400 mb-1">Газ ₽</label>
-            <input type="number" step="0.01" id="edit-paid-gas" class="w-full rounded-lg px-3 py-2.5" />
-          </div>
+
         </div>
-        <p class="text-xs text-slate-500">Потребление и суммы пересчитаются автоматически по соседним месяцам.</p>
+        <p class="text-xs text-slate-500">Потребление пересчитается по соседним показаниям. Суммы квитанций редактируются в разделе «Оплаты».</p>
         <div class="flex gap-2 pt-2">
           <button type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-violet-500 text-slate-900 font-semibold">Сохранить</button>
           <button type="button" onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl bg-slate-700 text-slate-300">Отмена</button>
@@ -947,19 +940,19 @@ function scheduleCloudPush() {
         const pKirby = payments['kirby'] || {};
         const gasKey = 'gas_' + month;
         const rentKey = 'rent_' + month;
-        let rentAmt = null;
-        if (pKirby[month]?.paid != null) rentAmt = Number(pKirby[month].paid);
-        else if (pKirby[rentKey]?.paid != null) rentAmt = Number(pKirby[rentKey].paid);
-        else if (last?.paid_rent != null) rentAmt = Number(last.paid_rent);
-
+        const rentEntry = pKirby[month] || {};
+        const rentAmt = rentEntry.invoice_amount != null
+          ? Number(rentEntry.invoice_amount)
+          : (last?.paid_rent != null ? Number(last.paid_rent) : null);
         const gasPaid = pKirby[gasKey]?.paid != null;
-        const rentPaid = pKirby[rentKey]?.paid != null || pKirby[month]?.type === 'rent';
+        const rentPaid = Object.prototype.hasOwnProperty.call(rentEntry, 'paid_status')
+          ? rentEntry.paid_status === true
+          : (pKirby[rentKey]?.paid != null || rentEntry.type === 'rent' || rentEntry.paid != null);
 
         const kConsE = Number(last?.cons_elec) || 0;
         const kConsG = Number(last?.cons_gas) || 0;
         const kCostE = Math.round(kConsE * (tariffs.t1 || 0) * 100) / 100;
         const kCostG = Math.round(kConsG * (tariffs.gas || 0) * 100) / 100;
-        const kInvBill = last ? Math.round((kCostE + kCostG) * 100) / 100 : null;
         const fmt2k = v => v.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const payBtnK = (paid, fn, m, label) => `
           <button type="button" data-pay-fn="${fn}" data-pay-month="${m}"
@@ -1122,26 +1115,12 @@ function scheduleCloudPush() {
       if (!month) return;
       if (!payments['kirby']) payments['kirby'] = {};
       const key = 'rent_' + month;
-      const entry = payments['kirby'][month];
-      const markedByMonth = entry && entry.type === 'rent';
-      if (payments['kirby'][key]?.paid != null || markedByMonth) {
-        // снять отметку: удаляем маркер и запись по месяцу, если она была создана кнопкой
-        delete payments['kirby'][key];
-        if (markedByMonth) delete payments['kirby'][month];
-      } else {
-        const row = data.kirby.find(r => r.month === month);
-        const rentAmount = row?.paid_rent != null ? Number(row.paid_rent) : 0;
-        const gasAmount = row?.paid_gas != null ? Number(row.paid_gas) : 0;
-        if (entry && !markedByMonth) {
-          // существующая сумма оплаты месяца — просто помечаем её как оплаченную
-          entry.type = 'rent';
-          payments['kirby'][key] = { paid: Number(entry.paid) || 0, manual: true, type: 'rent' };
-        } else {
-          const total = Math.round((rentAmount + gasAmount) * 100) / 100;
-          payments['kirby'][key] = { paid: total, manual: true, type: 'rent' };
-          payments['kirby'][month] = { paid: total, manual: true, type: 'rent' };
-        }
-      }
+      const entry = payments['kirby'][month] || {};
+      const wasPaid = Object.prototype.hasOwnProperty.call(entry, 'paid_status')
+        ? entry.paid_status === true
+        : (entry.paid != null || payments['kirby'][key]?.paid != null || entry.type === 'rent');
+      entry.paid_status = !wasPaid;
+      payments['kirby'][month] = entry;
       savePayments();
       renderDashboard();
       renderPayments();
@@ -1207,38 +1186,21 @@ function scheduleCloudPush() {
           <th class="px-3 py-3 font-medium">Газ</th>
           <th class="px-3 py-3 font-medium">Потр. эл.</th>
           <th class="px-3 py-3 font-medium">Потр. газ</th>
-          <th class="px-3 py-3 font-medium">Газ опл. ₽</th>
-          <th class="px-3 py-3 font-medium">Квартплата опл. ₽</th>
-          <th class="px-3 py-3 font-medium">Всего опл. ₽</th>
           <th class="px-3 py-3 font-medium w-16"></th>
         `;
         tbody.innerHTML = rows.map((r, idx) => {
           const realIdx = data.kirby.length - 1 - idx;
-          const p = payments['kirby'] || {};
-          let gasPaid = p['gas_' + r.month]?.paid != null ? Number(p['gas_' + r.month].paid) : null;
-          if (gasPaid == null && r.paid_gas != null) gasPaid = Number(r.paid_gas);
-          let rentPaid = p['rent_' + r.month]?.paid != null ? Number(p['rent_' + r.month].paid) : null;
-          if (rentPaid == null && p[r.month]?.paid != null) rentPaid = Number(p[r.month].paid);
-          if (rentPaid == null && r.paid_rent != null) rentPaid = Number(r.paid_rent);
-          const spentParts = [gasPaid, rentPaid].filter(x => x != null);
-          const spent = spentParts.length ? spentParts.reduce((a, b) => a + b, 0) : null;
-          const fmtRub = (v) => v != null
-            ? Number(v).toLocaleString('ru-RU', { maximumFractionDigits: 2 })
-            : '—';
           return `<tr class="hover:bg-slate-700/30">
-          <td class="px-3 py-2.5 font-medium">${r.month}</td>
-          <td class="px-3 py-2.5">${fmt(r.elec)}</td>
-          <td class="px-3 py-2.5">${fmt(r.gas)}</td>
-          <td class="px-3 py-2.5 text-yellow-300">${fmt(r.cons_elec)}</td>
-          <td class="px-3 py-2.5 text-orange-300">${fmt(r.cons_gas)}</td>
-          <td class="px-3 py-2.5 text-orange-300">${fmtRub(gasPaid)}</td>
-          <td class="px-3 py-2.5 text-sky-300">${fmtRub(rentPaid)}</td>
-          <td class="px-3 py-2.5 font-medium text-emerald-200">${fmtRub(spent)}</td>
-          <td class="px-2 py-2.5 whitespace-nowrap">
-            <button onclick="editReading(${realIdx})" class="text-sky-400 hover:text-sky-300 p-1" title="Редактировать показания"><i class="fas fa-pen text-xs"></i></button>
-            <button onclick="deleteReading(${realIdx})" class="text-rose-400 hover:text-rose-300 p-1" title="Удалить"><i class="fas fa-trash text-xs"></i></button>
-          </td>
-        </tr>`;
+            <td class="px-3 py-2.5 font-medium">${r.month}</td>
+            <td class="px-3 py-2.5">${fmt(r.elec)}</td>
+            <td class="px-3 py-2.5">${fmt(r.gas)}</td>
+            <td class="px-3 py-2.5 text-yellow-300">${fmt(r.cons_elec)}</td>
+            <td class="px-3 py-2.5 text-orange-300">${fmt(r.cons_gas)}</td>
+            <td class="px-2 py-2.5 whitespace-nowrap">
+              <button onclick="editReading(${realIdx})" class="text-sky-400 hover:text-sky-300 p-1" title="Редактировать показания"><i class="fas fa-pen text-xs"></i></button>
+              <button onclick="deleteReading(${realIdx})" class="text-rose-400 hover:text-rose-300 p-1" title="Удалить"><i class="fas fa-trash text-xs"></i></button>
+            </td>
+          </tr>`;
         }).join('');
       }
     }
@@ -1499,16 +1461,18 @@ function scheduleCloudPush() {
       if (!payments[aptKey]) payments[aptKey] = {};
 
       const invoiceHeader = document.querySelector('#tab-payments thead th:nth-child(4)');
-      if (invoiceHeader) invoiceHeader.textContent = aptKey === '69' ? 'Актуальная сумма счёта ₽' : 'Оплачено ₽';
+      if (invoiceHeader) invoiceHeader.textContent = 'Фактическая сумма счёта ₽';
       const hint = document.querySelector('#tab-payments .border-b p');
-      if (hint) hint.textContent = aptKey === '69'
-        ? 'Введите фактическую сумму счёта. Отметку об оплате ставьте отдельно.'
-        : 'Введите оплаченную сумму — месяц будет отмечен как оплаченный';
+      if (hint) hint.textContent = 'Введите фактическую сумму из квитанции. Отметку оплаты ставьте отдельно.';
 
       tbody.innerHTML = rows.map(r => {
         const p = payments[aptKey][r.month] || {};
         const paidVal = p.paid != null ? p.paid : '';
-        const isPaid = p.paid != null;
+        const isPaid = aptKey === 'kirby'
+          ? (Object.prototype.hasOwnProperty.call(p, 'paid_status')
+              ? p.paid_status === true
+              : (p.paid != null || payments[aptKey]['rent_' + r.month]?.paid != null || p.type === 'rent'))
+          : p.paid != null;
         const capKey = 'cap_' + r.month;
         const gasKey = 'gas_' + r.month;
         const capP = payments[aptKey][capKey];
@@ -1529,27 +1493,26 @@ function scheduleCloudPush() {
             ? Math.round((inv + (Number(gasAmt) || 0) + (Number(capAmt) || 0)) * 100) / 100
             : null;
         } else {
-          inv = r.paid_rent != null ? Number(r.paid_rent) : null;
-          total = ((r.paid_rent || 0) + (r.paid_gas || 0)) || null;
-          if (total === 0) total = null;
+          inv = p.invoice_amount != null
+            ? Number(p.invoice_amount)
+            : (r.paid_rent != null ? Number(r.paid_rent) : null);
           gasAmt = r.paid_gas != null ? Number(r.paid_gas)
             : (r.cons_gas != null ? Number(r.cons_gas) * (tariffs.gas || 0) : null);
+          total = inv != null
+            ? Math.round((inv + (Number(gasAmt) || 0)) * 100) / 100
+            : null;
         }
 
         const status = isPaid
           ? '<span class="badge bg-emerald-500/20 text-emerald-300">Счёт оплачен</span>'
           : '<span class="badge bg-slate-600 text-slate-300">Счёт не оплачен</span>';
-        const invoiceField = aptKey === '69'
-          ? `<input type="number" step="0.01" data-invoice-month="${r.month}" value="${p.invoice_amount ?? ''}"
+        const invoiceField = `<input type="number" step="0.01" min="0" data-invoice-month="${r.month}" value="${p.invoice_amount ?? ''}"
               class="w-32 rounded-lg px-2 py-1.5 text-sm" placeholder="${inv != null ? Number(inv).toFixed(2) : 'Введите сумму'}"
-              onchange="setInvoiceAmount('69', '${r.month}', this.value)" />`
-          : `<input type="number" step="0.01" data-pay-month="${r.month}" value="${paidVal}"
-              class="w-28 rounded-lg px-2 py-1.5 text-sm" placeholder="0"
-              onchange="setPaid('kirby', '${r.month}', this.value)" />`;
+              onchange="setInvoiceAmount('${aptKey}', '${r.month}', this.value)" />`;
 
         const billAction = isPaid
-          ? `<button onclick="toggleBillPaid('${r.month}')" class="text-xs text-emerald-400 hover:underline">Снять отметку</button>`
-          : `<button onclick="toggleBillPaid('${r.month}')" class="text-xs text-sky-400 hover:underline">Отметить счёт оплаченным</button>`;
+          ? `<button onclick="${aptKey === 'kirby' ? 'toggleKirbyRentPaid' : 'toggleBillPaid'}('${r.month}')" class="text-xs text-emerald-400 hover:underline">Снять отметку</button>`
+          : `<button onclick="${aptKey === 'kirby' ? 'toggleKirbyRentPaid' : 'toggleBillPaid'}('${r.month}')" class="text-xs text-sky-400 hover:underline">Отметить счёт оплаченным</button>`;
         const capStatus = aptKey === '69'
           ? (capP?.paid != null
             ? '<span class="badge bg-violet-500/20 text-violet-300">Капремонт ✓</span>'
@@ -1708,17 +1671,13 @@ function scheduleCloudPush() {
           list[idx].month = newMonth;
           list[idx].elec = parseFloat(document.getElementById('edit-elec').value) || null;
           list[idx].gas = parseFloat(document.getElementById('edit-gas-k').value) || null;
-          const pr = document.getElementById('edit-paid-rent').value;
-          const pg = document.getElementById('edit-paid-gas').value;
-          list[idx].paid_rent = pr === '' ? null : parseFloat(pr);
-          list[idx].paid_gas = pg === '' ? null : parseFloat(pg);
           recalcKirby();
         }
         // migrate payments keys if month changed
         if (oldMonth !== newMonth) {
           const aptKey = currentApt === '69' ? '69' : 'kirby';
           if (payments[aptKey]) {
-            ['', 'gas_', 'cap_'].forEach(prefix => {
+            ['', 'gas_', 'cap_', 'rent_'].forEach(prefix => {
               const oldK = prefix + oldMonth;
               const newK = prefix + newMonth;
               if (payments[aptKey][oldK] != null) {
@@ -1887,7 +1846,6 @@ function scheduleCloudPush() {
           month, elec, gas,
           cons_elec: prev && elec != null ? elec - prev.elec : null,
           cons_gas: prev && gas != null ? gas - prev.gas : null,
-          paid_rent: null, paid_gas: null
         });
       }
       saveData();
@@ -2102,8 +2060,6 @@ async function importFromJson() {
       } else {
         document.getElementById('edit-elec').value = r.elec ?? '';
         document.getElementById('edit-gas-k').value = r.gas ?? '';
-        document.getElementById('edit-paid-rent').value = r.paid_rent ?? '';
-        document.getElementById('edit-paid-gas').value = r.paid_gas ?? '';
       }
       document.getElementById('edit-modal').classList.remove('hidden');
     }
