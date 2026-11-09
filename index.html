@@ -705,9 +705,11 @@ async function pushToCloud() {
     lastCloudUpdatedAt = payload.updatedAt;
     await pb.collection(PB_COLLECTION).update(PB_RECORD_ID, payload);
     setSyncStatus('Синхронизировано', 'text-emerald-400');
+    return true;
   } catch (e) {
     console.error('Push to PocketBase failed', e);
     setSyncStatus('Ошибка записи', 'text-rose-400');
+    return false;
   }
 }
 
@@ -1367,7 +1369,7 @@ function scheduleCloudPush() {
       if (input) input.value = kirbyTariff == null ? '' : String(kirbyTariff);
     }
 
-    function saveKirbyTariff() {
+    async function saveKirbyTariff() {
       const input = document.getElementById('kirby-tariff-input');
       const raw = input?.value.trim() ?? '';
       const value = raw === '' ? NaN : Number(raw);
@@ -1377,10 +1379,14 @@ function scheduleCloudPush() {
       }
       kirbyTariff = Math.round(value * 10000) / 10000;
       localStorage.setItem('meters_app_kirby_tariff', String(kirbyTariff));
-      scheduleCloudPush();
       renderKirbyTariffForm();
       renderDashboard();
-      alert('Тариф Кирби сохранён');
+      if (pbReady) {
+        const synced = await pushToCloud();
+        alert(synced ? 'Тариф Кирби сохранён и синхронизирован с базой данных' : 'Тариф сохранён на этом устройстве, но не удалось записать его в PocketBase. Проверь подключение.');
+      } else {
+        alert('Тариф сохранён локально. PocketBase не подключён — синхронизация недоступна.');
+      }
     }
 
     function renderTariffsForm() {
