@@ -174,10 +174,10 @@ function loadLegacyPayments(){
 }
 function importJson(file){const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(x.version===2&&Array.isArray(x.apartments))state=x;else state=migrateLegacy(x);extraPayments=state.extraPayments||[];persist();render();toast('История импортирована')}catch(e){toast('Не удалось прочитать JSON')}};reader.readAsText(file)}
 function updateSync(text,status){$('#sync-label').textContent=text;$('#sync-dot').style.background=status==='ok'?'#20d69a':status==='error'?'#ff657e':'#ffad42'}
-function pbConfig(){try{return JSON.parse(localStorage.getItem(PB_CFG)||'{}')}catch{return {}}}
+function pbConfig(){try{return JSON.parse(localStorage.getItem(PB_CFG)||localStorage.getItem('meters_app_pb_config')||'{}')}catch{return {}}}
 async function connectPB(){
  const cfg=pbConfig();if(!cfg.url){updateSync('Локальное хранение','wait');return}
- try{pb=new PocketBase(cfg.url);pb.autoCancellation(false);updateSync('Подключение…','wait');
+ try{pb=new PocketBase(cfg.url);pb.autoCancellation(false);if(cfg.email&&cfg.password){await pb.collection('users').authWithPassword(cfg.email,cfg.password)}updateSync('Подключение…','wait');
   try{pbRecord=await pb.collection(cfg.collection||'state').getOne('main');if(pbRecord.data?.version===2&&pbRecord.data?.apartments){state=pbRecord.data;extraPayments=state.extraPayments||[];localStorage.setItem(STORE,JSON.stringify(state));render()}else if(pbRecord.data?.apt69||pbRecord.data?.kirby){state=migrateLegacy({data:pbRecord.data,tariffs:pbRecord.tariffs,services:pbRecord.services,payments:pbRecord.payments,meters:pbRecord.meters,kirbyTariff:pbRecord.data?.kirbyTariff});persist()}}
   catch(e){if(e.status===404){pbRecord=await pb.collection(cfg.collection||'state').create({id:'main',data:state,tariffs:{},services:[],payments:{},meters:[],updatedAt:Date.now()})}else throw e}
   updateSync('Синхронизировано','ok');
@@ -207,8 +207,8 @@ function bind(){
  $('#services-list').onchange=renderServiceTotals;$('#services-list').oninput=e=>{if(e.target.matches('input'))renderServiceTotals()};
  $('#modal-close').onclick=closeModal;$('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')closeModal()};
  $('#sync-now').onclick=()=>pb?pushPB():connectPB();$('#settings-shortcut').onclick=()=>changeView('settings');
- $('#save-pb').onclick=async()=>{const url=$('#pb-url').value.trim().replace(/\/+$/,'');localStorage.setItem(PB_CFG,JSON.stringify({url,collection:$('#pb-collection').value.trim()||'state'}));await connectPB();if(pb)await pushPB()};
- $('#pb-url').value=pbConfig().url||'';$('#pb-collection').value=pbConfig().collection||'state';
+ $('#save-pb').onclick=async()=>{const url=$('#pb-url').value.trim().replace(/\/+$/,'');localStorage.setItem(PB_CFG,JSON.stringify({url,collection:$('#pb-collection').value.trim()||'state',email:$('#pb-email').value.trim(),password:$('#pb-password').value}));await connectPB();if(pb)await pushPB()};
+ $('#pb-url').value=pbConfig().url||'';$('#pb-collection').value=pbConfig().collection||'state';$('#pb-email').value=pbConfig().email||'';$('#pb-password').value=pbConfig().password||'';
  $('#backup-json').onclick=exportJson;$('#restore-json').onchange=e=>{if(e.target.files[0])importJson(e.target.files[0])};
  $('#reading-form').onreset=()=>setTimeout(()=>renderReadingForm(current()),0);
 }
