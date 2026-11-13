@@ -998,3 +998,2712 @@
         "t1": 11436,
         "t2": 3341,
         "t_total": 14777,
+        "total": 3817.584,
+        "water": 543
+      },
+      {
+        "cap_repair": 325.26,
+        "cons_gas": 51,
+        "cons_t1": 394,
+        "cons_t2": 162,
+        "cons_water": 12,
+        "cost_gas": 345.78,
+        "cost_sewage": 617.16,
+        "cost_t1": 1485.38,
+        "cost_t2": 372.6,
+        "cost_water": 430.68,
+        "gas": 3491,
+        "invoice_sum": 4140.534000000001,
+        "month": "11/23",
+        "t1": 11830,
+        "t2": 3503,
+        "t_total": 15333,
+        "total": 4811.574,
+        "water": 555
+      },
+      {
+        "cap_repair": 325.26,
+        "cons_gas": 82,
+        "cons_t1": 456,
+        "cons_t2": 170,
+        "cons_water": 10,
+        "cost_gas": 555.96,
+        "cost_sewage": 514.3,
+        "cost_t1": 1719.12,
+        "cost_t2": 391,
+        "cost_water": 358.9,
+        "gas": 3573,
+        "invoice_sum": 4218.034000000001,
+        "month": "12/23",
+        "t1": 12286,
+        "t2": 3673,
+        "t_total": 15959,
+        "total": 5099.254,
+        "water": 565
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 97,
+        "cons_t1": 472,
+        "cons_t2": 182,
+        "cons_water": 12,
+        "cost_gas": 657.66,
+        "cost_sewage": 617.16,
+        "cost_t1": 1779.44,
+        "cost_t2": 418.6,
+        "cost_water": 430.68,
+        "gas": 3670,
+        "invoice_sum": 4608.78,
+        "month": "01/24",
+        "t1": 12758,
+        "t2": 3855,
+        "t_total": 16613,
+        "total": 5626.8,
+        "water": 577
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 96,
+        "cons_t1": 436,
+        "cons_t2": 177,
+        "cons_water": 11,
+        "cost_gas": 650.88,
+        "cost_sewage": 565.73,
+        "cost_t1": 1643.72,
+        "cost_t2": 407.1,
+        "cost_water": 394.79,
+        "gas": 3766,
+        "invoice_sum": 4374.24,
+        "month": "02/24",
+        "t1": 13194,
+        "t2": 4032,
+        "t_total": 17226,
+        "total": 5385.48,
+        "water": 588
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 59,
+        "cons_t1": 383,
+        "cons_t2": 158,
+        "cons_water": 9,
+        "cost_gas": 400.02,
+        "cost_sewage": 462.87,
+        "cost_t1": 1443.91,
+        "cost_t2": 363.4,
+        "cost_water": 323.01,
+        "gas": 3825,
+        "invoice_sum": 3956.09,
+        "month": "03/24",
+        "note": "ТО ВКГО 1907,19",
+        "t1": 13577,
+        "t2": 4190,
+        "t_total": 17767,
+        "total": 4716.47,
+        "water": 597
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 32,
+        "cons_t1": 335,
+        "cons_t2": 141,
+        "cons_water": 11,
+        "cost_gas": 216.96,
+        "cost_sewage": 565.73,
+        "cost_t1": 1262.95,
+        "cost_t2": 324.3,
+        "cost_water": 394.79,
+        "gas": 3857,
+        "invoice_sum": 3910.67,
+        "month": "04/24",
+        "t1": 13912,
+        "t2": 4331,
+        "t_total": 18243,
+        "total": 4487.99,
+        "water": 608
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 19,
+        "cons_t1": 224,
+        "cons_t2": 60,
+        "cons_water": 9,
+        "cost_gas": 128.82,
+        "cost_sewage": 462.87,
+        "cost_t1": 844.48,
+        "cost_t2": 138,
+        "cost_water": 323.01,
+        "gas": 3876,
+        "invoice_sum": 3131.26,
+        "month": "05/24",
+        "t1": 14136,
+        "t2": 4391,
+        "t_total": 18527,
+        "total": 3620.44,
+        "water": 617
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 18,
+        "cons_t1": 164,
+        "cons_t2": 49,
+        "cons_water": 8,
+        "cost_gas": 122.04,
+        "cost_sewage": 411.44,
+        "cost_t1": 618.28,
+        "cost_t2": 112.7,
+        "cost_water": 287.12,
+        "gas": 3894,
+        "invoice_sum": 2792.4399999999996,
+        "month": "06/24",
+        "t1": 14300,
+        "t2": 4440,
+        "t_total": 18740,
+        "total": 3274.84,
+        "water": 625
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 25,
+        "cons_t1": 193,
+        "cons_t2": 66,
+        "cons_water": 12,
+        "cost_gas": 186.75,
+        "cost_sewage": 839.76,
+        "cost_t1": 793.23,
+        "cost_t2": 165,
+        "cost_water": 445.2,
+        "gas": 3919,
+        "invoice_sum": 3606.09,
+        "month": "07/24",
+        "t1": 14493,
+        "t2": 4506,
+        "t_total": 18999,
+        "total": 4153.2,
+        "water": 637
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 30,
+        "cons_t1": 173,
+        "cons_t2": 51,
+        "cons_water": 12,
+        "cost_gas": 224.1,
+        "cost_sewage": 839.76,
+        "cost_t1": 711.03,
+        "cost_t2": 127.5,
+        "cost_water": 445.2,
+        "gas": 3949,
+        "invoice_sum": 3486.3900000000003,
+        "month": "08/24",
+        "t1": 14666,
+        "t2": 4557,
+        "t_total": 19223,
+        "total": 4070.85,
+        "water": 649
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 26,
+        "cons_t1": 183,
+        "cons_t2": 49,
+        "cons_water": 11,
+        "cost_gas": 194.22,
+        "cost_sewage": 769.78,
+        "cost_t1": 752.13,
+        "cost_t2": 122.5,
+        "cost_water": 408.1,
+        "gas": 3975,
+        "invoice_sum": 3415.41,
+        "month": "09/24",
+        "t1": 14849,
+        "t2": 4606,
+        "t_total": 19455,
+        "total": 3969.99,
+        "water": 660
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 28,
+        "cons_t1": 182,
+        "cons_t2": 53,
+        "cons_water": 11,
+        "cost_gas": 209.16,
+        "cost_sewage": 769.78,
+        "cost_t1": 748.02,
+        "cost_t2": 132.5,
+        "cost_water": 408.1,
+        "gas": 4003,
+        "invoice_sum": 3417.088,
+        "month": "10/24",
+        "t1": 15031,
+        "t2": 4659,
+        "t_total": 19690,
+        "total": 3986.608,
+        "water": 671
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 38,
+        "cons_t1": 273,
+        "cons_t2": 100,
+        "cons_water": 10,
+        "cost_gas": 283.86,
+        "cost_sewage": 699.8,
+        "cost_t1": 1122.03,
+        "cost_t2": 250,
+        "cost_water": 371,
+        "gas": 4041,
+        "invoice_sum": 3801.518,
+        "month": "11/24",
+        "t1": 15304,
+        "t2": 4759,
+        "t_total": 20063,
+        "total": 4445.738,
+        "water": 681
+      },
+      {
+        "cap_repair": 360.36,
+        "cons_gas": 41,
+        "cons_t1": 365,
+        "cons_t2": 144,
+        "cons_water": 10,
+        "cost_gas": 306.27,
+        "cost_sewage": 699.8,
+        "cost_t1": 1500.15,
+        "cost_t2": 360,
+        "cost_water": 371,
+        "gas": 4082,
+        "invoice_sum": 4289.638,
+        "month": "12/24",
+        "t1": 15669,
+        "t2": 4903,
+        "t_total": 20572,
+        "total": 4956.268,
+        "water": 691
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 53,
+        "cons_t1": 406,
+        "cons_t2": 154,
+        "cons_water": 11,
+        "cost_gas": 395.91,
+        "cost_sewage": 769.78,
+        "cost_t1": 1668.66,
+        "cost_t2": 385,
+        "cost_water": 408.1,
+        "gas": 4135,
+        "invoice_sum": 4842.84,
+        "month": "01/25",
+        "t1": 16075,
+        "t2": 5057,
+        "t_total": 21132,
+        "total": 5635.15,
+        "water": 702
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 48,
+        "cons_t1": 349,
+        "cons_t2": 144,
+        "cons_water": 9,
+        "cost_gas": 358.56,
+        "cost_sewage": 629.82,
+        "cost_t1": 1434.39,
+        "cost_t2": 360,
+        "cost_water": 333.9,
+        "gas": 4183,
+        "invoice_sum": 4369.41,
+        "month": "02/25",
+        "t1": 16424,
+        "t2": 5201,
+        "t_total": 21625,
+        "total": 5124.37,
+        "water": 711
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 48,
+        "cons_t1": 313,
+        "cons_t2": 130,
+        "cons_water": 10,
+        "cost_gas": 358.56,
+        "cost_sewage": 699.8,
+        "cost_t1": 1286.43,
+        "cost_t2": 325,
+        "cost_water": 371,
+        "gas": 4231,
+        "invoice_sum": 4293.53,
+        "month": "03/25",
+        "t1": 16737,
+        "t2": 5331,
+        "t_total": 22068,
+        "total": 5048.49,
+        "water": 721
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 29,
+        "cons_t1": 169,
+        "cons_t2": 51,
+        "cons_water": 12,
+        "cost_gas": 216.63,
+        "cost_sewage": 839.76,
+        "cost_t1": 694.59,
+        "cost_t2": 127.5,
+        "cost_water": 445.2,
+        "gas": 4260,
+        "invoice_sum": 3718.35,
+        "month": "04/25",
+        "note": "1786,02 ТО ВКГО",
+        "t1": 16906,
+        "t2": 5382,
+        "t_total": 22288,
+        "total": 4331.38,
+        "water": 733
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 22,
+        "cons_t1": 142,
+        "cons_t2": 45,
+        "cons_water": 9,
+        "cost_gas": 164.34,
+        "cost_sewage": 629.82,
+        "cost_t1": 583.62,
+        "cost_t2": 112.5,
+        "cost_water": 333.9,
+        "gas": 4282,
+        "invoice_sum": 3271.14,
+        "month": "05/25",
+        "t1": 17048,
+        "t2": 5427,
+        "t_total": 22475,
+        "total": 3831.88,
+        "water": 742
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 22,
+        "cons_t1": 163,
+        "cons_t2": 45,
+        "cons_water": 8,
+        "cost_gas": 164.34,
+        "cost_sewage": 559.84,
+        "cost_t1": 669.93,
+        "cost_t2": 112.5,
+        "cost_water": 296.8,
+        "gas": 4304,
+        "invoice_sum": 3250.37,
+        "month": "06/25",
+        "t1": 17211,
+        "t2": 5472,
+        "t_total": 22683,
+        "total": 3811.11,
+        "water": 750
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 22,
+        "cons_t1": 167,
+        "cons_t2": 62,
+        "cons_water": 9,
+        "cost_gas": 185.02,
+        "cost_sewage": 743.49,
+        "cost_t1": 804.94,
+        "cost_t2": 182.28,
+        "cost_water": 367.74,
+        "gas": 4326,
+        "invoice_sum": 3709.75,
+        "month": "07/25",
+        "t1": 17378,
+        "t2": 5534,
+        "t_total": 22912,
+        "total": 4291.17,
+        "water": 759
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 29,
+        "cons_t1": 178,
+        "cons_t2": 61,
+        "cons_water": 11,
+        "cost_gas": 243.89,
+        "cost_sewage": 908.71,
+        "cost_t1": 857.96,
+        "cost_t2": 179.34,
+        "cost_water": 449.46,
+        "gas": 4355,
+        "invoice_sum": 4006.77,
+        "month": "08/25",
+        "t1": 17556,
+        "t2": 5595,
+        "t_total": 23151,
+        "total": 4647.06,
+        "water": 770
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 24,
+        "cons_t1": 168,
+        "cons_t2": 45,
+        "cons_water": 11,
+        "cost_gas": 201.84,
+        "cost_sewage": 908.71,
+        "cost_t1": 809.76,
+        "cost_t2": 132.3,
+        "cost_water": 449.46,
+        "gas": 4379,
+        "invoice_sum": 3911.53,
+        "month": "09/25",
+        "t1": 17724,
+        "t2": 5640,
+        "t_total": 23364,
+        "total": 4509.77,
+        "water": 781
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 30,
+        "cons_t1": 178,
+        "cons_t2": 49,
+        "cons_water": 9,
+        "cost_gas": 252.3,
+        "cost_sewage": 743.49,
+        "cost_t1": 857.96,
+        "cost_t2": 144.06,
+        "cost_water": 367.74,
+        "gas": 4409,
+        "invoice_sum": 3724.55,
+        "month": "10/25",
+        "t1": 17902,
+        "t2": 5689,
+        "t_total": 23591,
+        "total": 4373.25,
+        "water": 790
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 64,
+        "cons_t1": 262,
+        "cons_t2": 98,
+        "cons_water": 11,
+        "cost_gas": 538.24,
+        "cost_sewage": 908.71,
+        "cost_t1": 1262.84,
+        "cost_t2": 288.12,
+        "cost_water": 449.46,
+        "gas": 4473,
+        "invoice_sum": 4520.43,
+        "month": "11/25",
+        "t1": 18164,
+        "t2": 5787,
+        "t_total": 23951,
+        "total": 5455.07,
+        "water": 801
+      },
+      {
+        "cap_repair": 396.4,
+        "cons_gas": 79,
+        "cons_t1": 302,
+        "cons_t2": 107,
+        "cons_water": 10,
+        "cost_gas": 664.39,
+        "cost_sewage": 826.1,
+        "cost_t1": 1455.64,
+        "cost_t2": 314.58,
+        "cost_water": 408.6,
+        "gas": 4552,
+        "invoice_sum": 4616.22,
+        "month": "12/25",
+        "t1": 18466,
+        "t2": 5894,
+        "t_total": 24360,
+        "total": 5677.01,
+        "water": 811
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 103,
+        "cons_t1": 332,
+        "cons_t2": 120,
+        "cons_water": 10,
+        "cost_gas": 880.65,
+        "cost_sewage": 839.8,
+        "cost_t1": 1626.8,
+        "cost_t2": 358.8,
+        "cost_water": 408.6,
+        "gas": 4655,
+        "invoice_sum": 4845.3,
+        "month": "01/26",
+        "t1": 18798,
+        "t2": 6014,
+        "t_total": 24812,
+        "total": 6201.44,
+        "water": 821
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 105,
+        "cons_t1": 332,
+        "cons_t2": 126,
+        "cons_water": 10,
+        "cost_gas": 897.75,
+        "cost_sewage": 839.8,
+        "cost_t1": 1626.8,
+        "cost_t2": 376.74,
+        "cost_water": 408.6,
+        "gas": 4760,
+        "invoice_sum": 4863.24,
+        "month": "02/26",
+        "note": "1751,89 ТО ВКГО",
+        "t1": 19130,
+        "t2": 6140,
+        "t_total": 25270,
+        "total": 6236.48,
+        "water": 831
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 106,
+        "cons_t1": 245,
+        "cons_t2": 103,
+        "cons_water": 8,
+        "cost_gas": 906.3,
+        "cost_sewage": 671.84,
+        "cost_t1": 1200.5,
+        "cost_t2": 307.97,
+        "cost_water": 326.88,
+        "gas": 4866,
+        "invoice_sum": 4118.49,
+        "month": "03/26",
+        "t1": 19375,
+        "t2": 6243,
+        "t_total": 25618,
+        "total": 5500.28,
+        "water": 839
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 41,
+        "cons_t1": 188,
+        "cons_t2": 62,
+        "cons_water": 12,
+        "cost_gas": 350.55,
+        "cost_sewage": 1007.76,
+        "cost_t1": 921.2,
+        "cost_t2": 185.38,
+        "cost_water": 490.32,
+        "gas": 4907,
+        "invoice_sum": 4215.96,
+        "month": "04/26",
+        "t1": 19563,
+        "t2": 6305,
+        "t_total": 25868,
+        "total": 5042,
+        "water": 851
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 26,
+        "cons_t1": 141,
+        "cons_t2": 48,
+        "cons_water": 9,
+        "cost_gas": 222.3,
+        "cost_sewage": 755.82,
+        "cost_t1": 690.9,
+        "cost_t2": 143.52,
+        "cost_water": 367.74,
+        "gas": 4933,
+        "invoice_sum": 3569.28,
+        "month": "05/26",
+        "t1": 19704,
+        "t2": 6353,
+        "t_total": 26057,
+        "total": 4267.07,
+        "water": 860
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 25,
+        "cons_t1": 151,
+        "cons_t2": 60,
+        "cons_water": 9,
+        "cost_gas": 213.75,
+        "cost_sewage": 755.82,
+        "cost_t1": 739.9,
+        "cost_t2": 179.4,
+        "cost_water": 367.74,
+        "gas": 4958,
+        "invoice_sum": 3654.16,
+        "month": "06/26",
+        "t1": 19855,
+        "t2": 6413,
+        "t_total": 26268,
+        "total": 4343.4,
+        "water": 869
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 24,
+        "cons_t1": 176,
+        "cons_t2": 63,
+        "cons_water": 9,
+        "cost_gas": 205.2,
+        "cost_sewage": 755.82,
+        "cost_t1": 862.4,
+        "cost_t2": 188.37,
+        "cost_water": 367.74,
+        "gas": 4982,
+        "invoice_sum": 3785.63,
+        "month": "07/26",
+        "t1": 20031,
+        "t2": 6476,
+        "t_total": 26507,
+        "total": 4466.32,
+        "water": 878
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 24,
+        "cons_t1": 211,
+        "cons_t2": 68,
+        "cons_water": 14,
+        "cost_gas": 205.2,
+        "cost_sewage": 1175.72,
+        "cost_t1": 1033.9,
+        "cost_t2": 203.32,
+        "cost_water": 572.04,
+        "gas": 5006,
+        "invoice_sum": 4596.28,
+        "month": "08/26",
+        "t1": 20242,
+        "t2": 6544,
+        "t_total": 26786,
+        "total": 5276.97,
+        "water": 892
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 26,
+        "cons_t1": 159,
+        "cons_t2": 57,
+        "cons_water": 11,
+        "cost_gas": 222.3,
+        "cost_sewage": 923.78,
+        "cost_t1": 779.1,
+        "cost_t2": 170.43,
+        "cost_water": 449.46,
+        "gas": 5032,
+        "invoice_sum": 3934.07,
+        "month": "09/26",
+        "t1": 20401,
+        "t2": 6601,
+        "t_total": 27002,
+        "total": 4631.86,
+        "water": 903
+      },
+      {
+        "cap_repair": 475.49,
+        "cons_gas": 29,
+        "cons_t1": 199,
+        "cons_t2": 67,
+        "cons_water": 10,
+        "cost_gas": 269.12,
+        "cost_sewage": 1003.7,
+        "cost_t1": 1108.43,
+        "cost_t2": 227.8,
+        "cost_water": 458.9,
+        "gas": 5061,
+        "invoice_sum": 4461.28,
+        "month": "10/26",
+        "t1": 20600,
+        "t2": 6668,
+        "t_total": 27268,
+        "total": 5205.89,
+        "water": 913
+      }
+    ],
+    "kirby": [
+      {
+        "cons_elec": null,
+        "cons_gas": null,
+        "elec": null,
+        "gas": null,
+        "month": "01/23",
+        "paid_gas": 3500,
+        "paid_rent": 4500
+      },
+      {
+        "cons_elec": 1100,
+        "cons_gas": 540,
+        "elec": 74930,
+        "gas": 41600,
+        "month": "02/23",
+        "paid_gas": 2169.6,
+        "paid_rent": 3787.98
+      },
+      {
+        "cons_elec": 750,
+        "cons_gas": 320,
+        "elec": 75680,
+        "gas": 41920,
+        "month": "03/23",
+        "paid_gas": 2113.08,
+        "paid_rent": 3492.6
+      },
+      {
+        "cons_elec": 840,
+        "cons_gas": 310,
+        "elec": 76520,
+        "gas": 42230,
+        "month": "04/23",
+        "paid_gas": 799.29,
+        "paid_rent": 3413.88
+      },
+      {
+        "cons_elec": 721,
+        "cons_gas": 197,
+        "elec": 77241,
+        "gas": 42427,
+        "month": "05/23",
+        "paid_gas": 1322.14,
+        "paid_rent": 3669.91
+      },
+      {
+        "cons_elec": 649,
+        "cons_gas": 93,
+        "elec": 77890,
+        "gas": 42520,
+        "month": "06/23",
+        "paid_gas": 603.21,
+        "paid_rent": 6635.21
+      },
+      {
+        "cons_elec": 545,
+        "cons_gas": 35,
+        "elec": 78435,
+        "gas": 42555,
+        "month": "07/23",
+        "paid_gas": 112.23,
+        "paid_rent": 1308.31
+      },
+      {
+        "cons_elec": 665,
+        "cons_gas": 4,
+        "elec": 79100,
+        "gas": 42559,
+        "month": "08/23",
+        "paid_gas": 168.96,
+        "paid_rent": 2138.72
+      },
+      {
+        "cons_elec": 548,
+        "cons_gas": 87,
+        "elec": 79648,
+        "gas": 42646,
+        "month": "09/23",
+        "paid_gas": 0,
+        "paid_rent": 2643.08
+      },
+      {
+        "cons_elec": 501,
+        "cons_gas": 169,
+        "elec": 80149,
+        "gas": 42815,
+        "month": "10/23",
+        "paid_gas": 0,
+        "paid_rent": 2488.92
+      },
+      {
+        "cons_elec": 526,
+        "cons_gas": 360,
+        "elec": 80675,
+        "gas": 43175,
+        "month": "11/23",
+        "paid_gas": 2134.47,
+        "paid_rent": 2570.92
+      },
+      {
+        "cons_elec": 595,
+        "cons_gas": 485,
+        "elec": 81270,
+        "gas": 43660,
+        "month": "12/23",
+        "paid_gas": 3288.3,
+        "paid_rent": 3285.14
+      },
+      {
+        "cons_elec": 580,
+        "cons_gas": 580,
+        "elec": 81850,
+        "gas": 44240,
+        "month": "01/24",
+        "paid_gas": 3932.4,
+        "paid_rent": 2325.82
+      },
+      {
+        "cons_elec": 805,
+        "cons_gas": 560,
+        "elec": 82655,
+        "gas": 44800,
+        "month": "02/24",
+        "paid_gas": 3796.8,
+        "paid_rent": 5211.4
+      },
+      {
+        "cons_elec": 917,
+        "cons_gas": 516,
+        "elec": 83572,
+        "gas": 45316,
+        "month": "03/24",
+        "paid_gas": 3498.48,
+        "paid_rent": 2259.4
+      },
+      {
+        "cons_elec": 978,
+        "cons_gas": 394,
+        "elec": 84550,
+        "gas": 45710,
+        "month": "04/24",
+        "paid_gas": 2671.32,
+        "paid_rent": 4119.16
+      },
+      {
+        "cons_elec": 712,
+        "cons_gas": 212,
+        "elec": 85262,
+        "gas": 45922,
+        "month": "05/24",
+        "paid_gas": 1437.36,
+        "paid_rent": 3706.07
+      },
+      {
+        "cons_elec": 618,
+        "cons_gas": 118,
+        "elec": 85880,
+        "gas": 46040,
+        "month": "06/24",
+        "paid_gas": 800.04,
+        "paid_rent": 3397.75
+      },
+      {
+        "cons_elec": 597,
+        "cons_gas": 2,
+        "elec": 86477,
+        "gas": 46042,
+        "month": "07/24",
+        "paid_gas": 14.94,
+        "paid_rent": 3549.63
+      },
+      {
+        "cons_elec": 593,
+        "cons_gas": 8,
+        "elec": 87070,
+        "gas": 46050,
+        "month": "08/24",
+        "paid_gas": 59.76,
+        "paid_rent": 3535.35
+      },
+      {
+        "cons_elec": 547,
+        "cons_gas": 65,
+        "elec": 87617,
+        "gas": 46115,
+        "month": "09/24",
+        "paid_gas": 485.55,
+        "paid_rent": 2896.25
+      },
+      {
+        "cons_elec": 495,
+        "cons_gas": 133,
+        "elec": 88112,
+        "gas": 46248,
+        "month": "10/24",
+        "paid_gas": 993.51,
+        "paid_rent": 2710.61
+      },
+      {
+        "cons_elec": 660,
+        "cons_gas": 344,
+        "elec": 88772,
+        "gas": 46592,
+        "month": "11/24",
+        "paid_gas": 2569.68,
+        "paid_rent": 3299.66
+      },
+      {
+        "cons_elec": 582,
+        "cons_gas": 401,
+        "elec": 89354,
+        "gas": 46993,
+        "month": "12/24",
+        "paid_gas": 2995.47,
+        "paid_rent": 3021.2
+      },
+      {
+        "cons_elec": 756,
+        "cons_gas": 429,
+        "elec": 90110,
+        "gas": 47422,
+        "month": "01/25",
+        "paid_gas": 3204.63,
+        "paid_rent": 3642.38
+      },
+      {
+        "cons_elec": 710,
+        "cons_gas": 468,
+        "elec": 90820,
+        "gas": 47890,
+        "month": "02/25",
+        "paid_gas": 3495.96,
+        "paid_rent": 3478.16
+      },
+      {
+        "cons_elec": 680,
+        "cons_gas": 480,
+        "elec": 91500,
+        "gas": 48370,
+        "month": "03/25",
+        "paid_gas": 3585.6,
+        "paid_rent": 3371.06
+      },
+      {
+        "cons_elec": 420,
+        "cons_gas": 260,
+        "elec": 91920,
+        "gas": 48630,
+        "month": "04/25",
+        "paid_gas": 1942.2,
+        "paid_rent": 3302.05
+      },
+      {
+        "cons_elec": 546,
+        "cons_gas": 209,
+        "elec": 92466,
+        "gas": 48839,
+        "month": "05/25",
+        "paid_gas": 1561.23,
+        "paid_rent": 2508.37
+      },
+      {
+        "cons_elec": 519,
+        "cons_gas": 59,
+        "elec": 92985,
+        "gas": 48898,
+        "month": "06/25",
+        "paid_gas": 440.73,
+        "paid_rent": 3617.46
+      },
+      {
+        "cons_elec": 549,
+        "cons_gas": 7,
+        "elec": 93534,
+        "gas": 48905,
+        "month": "07/25",
+        "paid_gas": 58.87,
+        "paid_rent": 3453.09
+      },
+      {
+        "cons_elec": 517,
+        "cons_gas": 7,
+        "elec": 94051,
+        "gas": 48912,
+        "month": "08/25",
+        "paid_gas": 58.87,
+        "paid_rent": 3725.44
+      },
+      {
+        "cons_elec": 557,
+        "cons_gas": 19,
+        "elec": 94608,
+        "gas": 48931,
+        "month": "09/25",
+        "paid_gas": 159.79,
+        "paid_rent": 3370.03
+      },
+      {
+        "cons_elec": 518,
+        "cons_gas": 168,
+        "elec": 95126,
+        "gas": 49099,
+        "month": "10/25",
+        "paid_gas": 1412.88,
+        "paid_rent": 3206.62
+      },
+      {
+        "cons_elec": 576,
+        "cons_gas": 310,
+        "elec": 95702,
+        "gas": 49409,
+        "month": "11/25",
+        "paid_gas": 2607.1,
+        "paid_rent": 3449.64
+      },
+      {
+        "cons_elec": 508,
+        "cons_gas": 321,
+        "elec": 96210,
+        "gas": 49730,
+        "month": "12/25",
+        "paid_gas": 2699.61,
+        "paid_rent": 3945.55
+      },
+      {
+        "cons_elec": 1290,
+        "cons_gas": 490,
+        "elec": 97500,
+        "gas": 50220,
+        "month": "01/26",
+        "paid_gas": 4189.5,
+        "paid_rent": 7316.69
+      },
+      {
+        "cons_elec": 1568,
+        "cons_gas": 521,
+        "elec": 99068,
+        "gas": 50741,
+        "month": "02/26",
+        "paid_gas": 4454.55,
+        "paid_rent": 8500.97
+      },
+      {
+        "cons_elec": 817,
+        "cons_gas": 489,
+        "elec": 99885,
+        "gas": 51230,
+        "month": "03/26",
+        "paid_gas": 4180.95,
+        "paid_rent": 5301.71
+      },
+      {
+        "cons_elec": 745,
+        "cons_gas": 320,
+        "elec": 100630,
+        "gas": 51550,
+        "month": "04/26",
+        "paid_gas": 2979.3,
+        "paid_rent": 4994.99
+      },
+      {
+        "cons_elec": 621,
+        "cons_gas": 229,
+        "elec": 101251,
+        "gas": 51779,
+        "month": "05/26",
+        "paid_gas": 1957.95,
+        "paid_rent": 4989.76
+      },
+      {
+        "cons_elec": 561,
+        "cons_gas": 71,
+        "elec": 101812,
+        "gas": 51850,
+        "month": "06/26",
+        "paid_gas": 607.05,
+        "paid_rent": 4734.16
+      },
+      {
+        "cons_elec": 586,
+        "cons_gas": 24,
+        "elec": 102398,
+        "gas": 51874,
+        "month": "07/26",
+        "paid_gas": 205.2,
+        "paid_rent": 6037.72
+      },
+      {
+        "cons_elec": 610,
+        "cons_gas": 11,
+        "elec": 103008,
+        "gas": 51885,
+        "month": "08/26",
+        "paid_gas": 94.05,
+        "paid_rent": 3000.34
+      },
+      {
+        "cons_elec": 578,
+        "cons_gas": 86,
+        "elec": 103586,
+        "gas": 51971,
+        "month": "9/26",
+        "paid_gas": 735.3,
+        "paid_rent": 2477.33
+      },
+      {
+        "cons_elec": 447,
+        "cons_gas": 130,
+        "elec": 104033,
+        "gas": 52101,
+        "month": "10/26",
+        "paid_gas": 1206.4,
+        "paid_rent": 2786.14
+      },
+      {
+        "cons_elec": 497,
+        "cons_gas": 272,
+        "elec": 104530,
+        "gas": 52373,
+        "month": "11/26"
+      }
+    ]
+  },
+  "tariffs": {
+    "water": 45.89,
+    "sewage": 100.37,
+    "gas": 9.28,
+    "t1": 5.57,
+    "t2": 3.4,
+    "cap_repair": 475.49,
+    "other_services": 1662.45
+  },
+  "kirbyTariff": 4.85,
+  "services": [
+    {
+      "amount": 23,
+      "name": "Тех.обслуживание СКУД ворот",
+      "tariff": 23,
+      "unit": "кв-ра"
+    },
+    {
+      "amount": 58.96,
+      "name": "Видеонаблюдение придомовой территории",
+      "tariff": 58.96,
+      "unit": "кв-ра"
+    },
+    {
+      "amount": 258.8,
+      "name": "Электроснабжение в целях содержания общего имущества дома",
+      "tariff": 5.53,
+      "unit": "м²"
+    },
+    {
+      "amount": 38.84,
+      "name": "Водоотведение в целях содержания общего имущества дома",
+      "tariff": 0.83,
+      "unit": "м²"
+    },
+    {
+      "amount": 17.78,
+      "name": "Холодная вода в целях содержания общего имущества дома",
+      "tariff": 0.38,
+      "unit": "м²"
+    },
+    {
+      "amount": 131.51,
+      "name": "Обращение с ТКО",
+      "tariff": 131.51,
+      "unit": "чел"
+    },
+    {
+      "amount": 38.38,
+      "name": "ТО дымоходов",
+      "tariff": 0.82,
+      "unit": "м²"
+    },
+    {
+      "amount": 21.06,
+      "name": "ТО вентиляционных каналов",
+      "tariff": 0.45,
+      "unit": "м²"
+    },
+    {
+      "amount": 21.53,
+      "name": "Содержание контейнерных площадок",
+      "tariff": 0.46,
+      "unit": "м²"
+    },
+    {
+      "amount": 21.53,
+      "name": "Тек.ремонт внутридом.газовых сетей",
+      "tariff": 0.46,
+      "unit": "м²"
+    },
+    {
+      "amount": 320.58,
+      "name": "Управление жилым фондом",
+      "tariff": 6.85,
+      "unit": "м²"
+    },
+    {
+      "amount": 26,
+      "name": "Тех.обслуживание ЗПУ",
+      "tariff": 26,
+      "unit": "кв-ра"
+    },
+    {
+      "amount": 75.35,
+      "name": "Тек.ремонт внутридом. сетей электроснабжения",
+      "tariff": 1.61,
+      "unit": "м²"
+    },
+    {
+      "amount": 131.98,
+      "name": "Тек.ремонт внутридом.сан.тех.сетей",
+      "tariff": 2.82,
+      "unit": "м²"
+    },
+    {
+      "amount": 24.34,
+      "name": "Дератизация (дезинсекция)",
+      "tariff": 0.52,
+      "unit": "м²"
+    },
+    {
+      "amount": 163.33,
+      "name": "Содержание придомовой территории",
+      "tariff": 3.49,
+      "unit": "м²"
+    },
+    {
+      "amount": 26,
+      "name": "ТО общедомовой сети ТВ приема",
+      "tariff": 26,
+      "unit": "кв-ра"
+    },
+    {
+      "amount": 263.48,
+      "name": "Тек.ремонт и тех.обсл. ж/здания",
+      "tariff": 5.63,
+      "unit": "м²"
+    }
+  ],
+  "payments": {
+    "69": {
+      "01/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "01/22": {
+        "manual": true,
+        "paid": 4101.04
+      },
+      "01/23": {
+        "manual": true,
+        "paid": 5631.58
+      },
+      "01/24": {
+        "manual": true,
+        "paid": 5626.8
+      },
+      "01/25": {
+        "manual": true,
+        "paid": 5635.15
+      },
+      "01/26": {
+        "manual": true,
+        "paid": 6201.44
+      },
+      "02/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "02/22": {
+        "manual": true,
+        "paid": 3732.63
+      },
+      "02/23": {
+        "manual": true,
+        "paid": 5867.4
+      },
+      "02/24": {
+        "manual": true,
+        "paid": 5385.48
+      },
+      "02/25": {
+        "manual": true,
+        "paid": 5124.37
+      },
+      "02/26": {
+        "manual": true,
+        "paid": 6236.48
+      },
+      "03/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "03/22": {
+        "manual": true,
+        "paid": 3534.57
+      },
+      "03/23": {
+        "manual": true,
+        "paid": 4512.09
+      },
+      "03/24": {
+        "manual": true,
+        "paid": 4716.47
+      },
+      "03/25": {
+        "manual": true,
+        "paid": 5048.49
+      },
+      "03/26": {
+        "manual": true,
+        "paid": 4227.77
+      },
+      "04/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "04/22": {
+        "manual": true,
+        "paid": 3664.9
+      },
+      "04/23": {
+        "manual": true,
+        "paid": 4124.97
+      },
+      "04/24": {
+        "manual": true,
+        "paid": 4487.99
+      },
+      "04/25": {
+        "manual": true,
+        "paid": 4331.38
+      },
+      "04/26": {
+        "manual": true,
+        "paid": 4325.24
+      },
+      "05/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "05/22": {
+        "manual": true,
+        "paid": 3227.35
+      },
+      "05/23": {
+        "manual": true,
+        "paid": 3580.59
+      },
+      "05/24": {
+        "manual": true,
+        "paid": 4274.93
+      },
+      "05/25": {
+        "manual": true,
+        "paid": 2985.16
+      },
+      "05/26": {
+        "manual": true,
+        "paid": 3484.81
+      },
+      "06/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "06/22": {
+        "manual": true,
+        "paid": 3074.71
+      },
+      "06/23": {
+        "manual": true,
+        "paid": 3446.14
+      },
+      "06/24": {
+        "manual": true,
+        "paid": 3274.84
+      },
+      "06/25": {
+        "manual": true,
+        "paid": 2937.39
+      },
+      "06/26": {
+        "manual": true,
+        "paid": 3569.69
+      },
+      "07/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "07/22": {
+        "manual": true,
+        "paid": 3018.59
+      },
+      "07/23": {
+        "manual": true,
+        "paid": 2857.33
+      },
+      "07/24": {
+        "manual": true,
+        "paid": 2742.48
+      },
+      "07/25": {
+        "manual": true,
+        "paid": 1049.66
+      },
+      "07/26": {
+        "manual": true,
+        "paid": 4466.32
+      },
+      "08/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "08/22": {
+        "manual": true,
+        "paid": 3063.98
+      },
+      "08/23": {
+        "manual": true,
+        "paid": 3417.11
+      },
+      "08/24": {
+        "manual": true,
+        "paid": 2939.37
+      },
+      "08/25": {
+        "manual": true,
+        "paid": 2157.2
+      },
+      "08/26": {
+        "manual": true,
+        "paid": 4511.81
+      },
+      "09/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "09/22": {
+        "manual": true,
+        "paid": 3373.42
+      },
+      "09/23": {
+        "manual": true,
+        "paid": 3206.34
+      },
+      "09/24": {
+        "manual": true,
+        "paid": 3089.44
+      },
+      "09/25": {
+        "manual": true,
+        "paid": 2881.93
+      },
+      "09/26": {
+        "manual": true,
+        "paid": 3849.6
+      },
+      "10/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "10/22": {
+        "manual": true,
+        "paid": 4045.64
+      },
+      "10/23": {
+        "manual": true,
+        "paid": 3206.34
+      },
+      "10/24": {
+        "manual": true,
+        "paid": 3986.61
+      },
+      "10/25": {
+        "manual": true,
+        "paid": 4373.25
+      },
+      "10/26": {
+        "invoice_amount": 4570.56
+      },
+      "11/21": {
+        "manual": true,
+        "paid": 0
+      },
+      "11/22": {
+        "manual": true,
+        "paid": 4330.31
+      },
+      "11/23": {
+        "manual": true,
+        "paid": 4811.57
+      },
+      "11/24": {
+        "manual": true,
+        "paid": 3670.57
+      },
+      "11/25": {
+        "manual": true,
+        "paid": 5455.07
+      },
+      "12/21": {
+        "manual": true,
+        "paid": 2991.91
+      },
+      "12/22": {
+        "manual": true,
+        "paid": 5451.89
+      },
+      "12/23": {
+        "manual": true,
+        "paid": 5099.25
+      },
+      "12/24": {
+        "manual": true,
+        "paid": 4433.29
+      },
+      "12/25": {
+        "manual": true,
+        "paid": 5677.01
+      },
+      "cap_01/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_01/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_01/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_01/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_01/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_01/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_02/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_02/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_02/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_02/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_02/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_02/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_03/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_03/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_03/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_03/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_03/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_03/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_04/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_04/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_04/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_04/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_04/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_04/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_05/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_05/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_05/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_05/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_05/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_05/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_06/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_06/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_06/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_06/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_06/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_06/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_07/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_07/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_07/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_07/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_07/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_07/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_08/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_08/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_08/23": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_08/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_08/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_08/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_09/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_09/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_09/23": {
+        "manual": true,
+        "paid": 325.26,
+        "type": "cap_repair"
+      },
+      "cap_09/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_09/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_09/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_10/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_10/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_10/23": {
+        "manual": true,
+        "paid": 325.26,
+        "type": "cap_repair"
+      },
+      "cap_10/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_10/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_10/26": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_11/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_11/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_11/23": {
+        "manual": true,
+        "paid": 325.26,
+        "type": "cap_repair"
+      },
+      "cap_11/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_11/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "cap_12/21": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_12/22": {
+        "manual": true,
+        "paid": 475.49,
+        "type": "cap_repair"
+      },
+      "cap_12/23": {
+        "manual": true,
+        "paid": 325.26,
+        "type": "cap_repair"
+      },
+      "cap_12/24": {
+        "manual": true,
+        "paid": 360.36,
+        "type": "cap_repair"
+      },
+      "cap_12/25": {
+        "manual": true,
+        "paid": 396.4,
+        "type": "cap_repair"
+      },
+      "gas_01/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_01/22": {
+        "manual": true,
+        "paid": 1080.46,
+        "type": "gas"
+      },
+      "gas_01/23": {
+        "manual": true,
+        "paid": 1064.46,
+        "type": "gas"
+      },
+      "gas_01/24": {
+        "manual": true,
+        "paid": 657.66,
+        "type": "gas"
+      },
+      "gas_01/25": {
+        "manual": true,
+        "paid": 395.91,
+        "type": "gas"
+      },
+      "gas_01/26": {
+        "manual": true,
+        "paid": 880.65,
+        "type": "gas"
+      },
+      "gas_02/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_02/22": {
+        "manual": true,
+        "paid": 716.26,
+        "type": "gas"
+      },
+      "gas_02/23": {
+        "manual": true,
+        "paid": 996.66,
+        "type": "gas"
+      },
+      "gas_02/24": {
+        "manual": true,
+        "paid": 650.88,
+        "type": "gas"
+      },
+      "gas_02/25": {
+        "manual": true,
+        "paid": 358.56,
+        "type": "gas"
+      },
+      "gas_02/26": {
+        "manual": true,
+        "paid": 897.75,
+        "type": "gas"
+      },
+      "gas_03/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_03/22": {
+        "manual": true,
+        "paid": 613.07,
+        "type": "gas"
+      },
+      "gas_03/23": {
+        "manual": true,
+        "paid": 610.2,
+        "type": "gas"
+      },
+      "gas_03/24": {
+        "manual": true,
+        "paid": 400.02,
+        "type": "gas"
+      },
+      "gas_03/25": {
+        "manual": true,
+        "paid": 358.56,
+        "type": "gas"
+      },
+      "gas_03/26": {
+        "manual": true,
+        "paid": 906.3,
+        "type": "gas"
+      },
+      "gas_04/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_04/22": {
+        "manual": true,
+        "paid": 509.88,
+        "type": "gas"
+      },
+      "gas_04/23": {
+        "manual": true,
+        "paid": 291.54,
+        "type": "gas"
+      },
+      "gas_04/24": {
+        "manual": true,
+        "paid": 216.96,
+        "type": "gas"
+      },
+      "gas_04/25": {
+        "manual": true,
+        "paid": 216.63,
+        "type": "gas"
+      },
+      "gas_04/26": {
+        "manual": true,
+        "paid": 350.55,
+        "type": "gas"
+      },
+      "gas_05/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_05/22": {
+        "manual": true,
+        "paid": 261.01,
+        "type": "gas"
+      },
+      "gas_05/23": {
+        "manual": true,
+        "paid": 216.96,
+        "type": "gas"
+      },
+      "gas_05/24": {
+        "manual": true,
+        "paid": 128.82,
+        "type": "gas"
+      },
+      "gas_05/25": {
+        "manual": true,
+        "paid": 164.34,
+        "type": "gas"
+      },
+      "gas_05/26": {
+        "manual": true,
+        "paid": 222.3,
+        "type": "gas"
+      },
+      "gas_06/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_06/22": {
+        "manual": true,
+        "paid": 206.38,
+        "type": "gas"
+      },
+      "gas_06/23": {
+        "manual": true,
+        "paid": 230.52,
+        "type": "gas"
+      },
+      "gas_06/24": {
+        "manual": true,
+        "paid": 122.04,
+        "type": "gas"
+      },
+      "gas_06/25": {
+        "manual": true,
+        "paid": 164.34,
+        "type": "gas"
+      },
+      "gas_06/26": {
+        "manual": true,
+        "paid": 213.75,
+        "type": "gas"
+      },
+      "gas_07/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_07/22": {
+        "manual": true,
+        "paid": 181.25,
+        "type": "gas"
+      },
+      "gas_07/23": {
+        "manual": true,
+        "paid": 183.06,
+        "type": "gas"
+      },
+      "gas_07/24": {
+        "manual": true,
+        "paid": 186.75,
+        "type": "gas"
+      },
+      "gas_07/25": {
+        "manual": true,
+        "paid": 185.02,
+        "type": "gas"
+      },
+      "gas_07/26": {
+        "manual": true,
+        "paid": 205.2,
+        "type": "gas"
+      },
+      "gas_08/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_08/22": {
+        "manual": true,
+        "paid": 168.75,
+        "type": "gas"
+      },
+      "gas_08/23": {
+        "manual": true,
+        "paid": 196.62,
+        "type": "gas"
+      },
+      "gas_08/24": {
+        "manual": true,
+        "paid": 224.1,
+        "type": "gas"
+      },
+      "gas_08/25": {
+        "manual": true,
+        "paid": 243.89,
+        "type": "gas"
+      },
+      "gas_08/26": {
+        "manual": true,
+        "paid": 205.2,
+        "type": "gas"
+      },
+      "gas_09/21": {
+        "manual": true,
+        "paid": 0,
+        "type": "gas"
+      },
+      "gas_09/22": {
+        "manual": true,
+        "paid": 181.25,
+        "type": "gas"
+      },
+      "gas_09/23": {
+        "manual": true,
+        "paid": 250.86,
+        "type": "gas"
+      },
+      "gas_09/24": {
+        "manual": true,
+        "paid": 194.22,
+        "type": "gas"
+      },
+      "gas_09/25": {
+        "manual": true,
+        "paid": 201.84,
+        "type": "gas"
+      },
+      "gas_09/26": {
+        "manual": true,
+        "paid": 222.3,
+        "type": "gas"
+      },
+      "gas_10/21": {
+        "manual": true,
+        "paid": 169.96,
+        "type": "gas"
+      },
+      "gas_10/22": {
+        "manual": true,
+        "paid": 218.75,
+        "type": "gas"
+      },
+      "gas_10/23": {
+        "manual": true,
+        "paid": 223.74,
+        "type": "gas"
+      },
+      "gas_10/24": {
+        "manual": true,
+        "paid": 209.16,
+        "type": "gas"
+      },
+      "gas_10/25": {
+        "manual": true,
+        "paid": 252.3,
+        "type": "gas"
+      },
+      "gas_10/26": {
+        "manual": true,
+        "paid": 269.12,
+        "type": "gas"
+      },
+      "gas_11/21": {
+        "manual": true,
+        "paid": 273.15,
+        "type": "gas"
+      },
+      "gas_11/22": {
+        "manual": true,
+        "paid": 400,
+        "type": "gas"
+      },
+      "gas_11/23": {
+        "manual": true,
+        "paid": 345.78,
+        "type": "gas"
+      },
+      "gas_11/24": {
+        "manual": true,
+        "paid": 283.86,
+        "type": "gas"
+      },
+      "gas_11/25": {
+        "manual": true,
+        "paid": 538.24,
+        "type": "gas"
+      },
+      "gas_12/21": {
+        "manual": true,
+        "paid": 734.47,
+        "type": "gas"
+      },
+      "gas_12/22": {
+        "manual": true,
+        "paid": 1010.22,
+        "type": "gas"
+      },
+      "gas_12/23": {
+        "manual": true,
+        "paid": 555.96,
+        "type": "gas"
+      },
+      "gas_12/24": {
+        "manual": true,
+        "paid": 306.27,
+        "type": "gas"
+      },
+      "gas_12/25": {
+        "manual": true,
+        "paid": 664.39,
+        "type": "gas"
+      }
+    },
+    "kirby": {
+      "01/23": {
+        "manual": true,
+        "paid": 4500
+      },
+      "01/24": {
+        "manual": true,
+        "paid": 2325.82
+      },
+      "01/25": {
+        "manual": true,
+        "paid": 3642.38
+      },
+      "01/26": {
+        "manual": true,
+        "paid": 7316.69
+      },
+      "02/23": {
+        "manual": true,
+        "paid": 3787.98
+      },
+      "02/24": {
+        "manual": true,
+        "paid": 5211.4
+      },
+      "02/25": {
+        "manual": true,
+        "paid": 3478.16
+      },
+      "02/26": {
+        "manual": true,
+        "paid": 8500.97
+      },
+      "03/23": {
+        "manual": true,
+        "paid": 3492.6
+      },
+      "03/24": {
+        "manual": true,
+        "paid": 2259.4
+      },
+      "03/25": {
+        "manual": true,
+        "paid": 3371.06
+      },
+      "03/26": {
+        "manual": true,
+        "paid": 5301.71
+      },
+      "04/23": {
+        "manual": true,
+        "paid": 3413.88
+      },
+      "04/24": {
+        "manual": true,
+        "paid": 4119.16
+      },
+      "04/25": {
+        "manual": true,
+        "paid": 3302.05
+      },
+      "04/26": {
+        "manual": true,
+        "paid": 4994.99
+      },
+      "05/23": {
+        "manual": true,
+        "paid": 3669.91
+      },
+      "05/24": {
+        "manual": true,
+        "paid": 3706.07
+      },
+      "05/25": {
+        "manual": true,
+        "paid": 2508.37
+      },
+      "05/26": {
+        "manual": true,
+        "paid": 4989.76
+      },
+      "06/23": {
+        "manual": true,
+        "paid": 6635.21
+      },
+      "06/24": {
+        "manual": true,
+        "paid": 3397.75
+      },
+      "06/25": {
+        "manual": true,
+        "paid": 3617.46
+      },
+      "06/26": {
+        "manual": true,
+        "paid": 4734.16
+      },
+      "07/23": {
+        "manual": true,
+        "paid": 1308.31
+      },
+      "07/24": {
+        "manual": true,
+        "paid": 3549.63
+      },
+      "07/25": {
+        "manual": true,
+        "paid": 3453.09
+      },
+      "07/26": {
+        "manual": true,
+        "paid": 6037.72
+      },
+      "08/23": {
+        "manual": true,
+        "paid": 2138.72
+      },
+      "08/24": {
+        "manual": true,
+        "paid": 3535.35
+      },
+      "08/25": {
+        "manual": true,
+        "paid": 3725.44
+      },
+      "08/26": {
+        "manual": true,
+        "paid": 3000.34
+      },
+      "09/23": {
+        "manual": true,
+        "paid": 2643.08
+      },
+      "09/24": {
+        "manual": true,
+        "paid": 2896.25
+      },
+      "09/25": {
+        "manual": true,
+        "paid": 3370.03
+      },
+      "10/23": {
+        "manual": true,
+        "paid": 2488.92
+      },
+      "10/24": {
+        "manual": true,
+        "paid": 2710.61
+      },
+      "10/25": {
+        "manual": true,
+        "paid": 3206.62
+      },
+      "10/26": {
+        "paid_status": true
+      },
+      "11/23": {
+        "manual": true,
+        "paid": 2570.92
+      },
+      "11/24": {
+        "manual": true,
+        "paid": 3299.66
+      },
+      "11/25": {
+        "manual": true,
+        "paid": 3449.64
+      },
+      "11/26": {
+        "paid_status": false
+      },
+      "12/23": {
+        "manual": true,
+        "paid": 3285.14
+      },
+      "12/24": {
+        "manual": true,
+        "paid": 3021.2
+      },
+      "12/25": {
+        "manual": true,
+        "paid": 3945.55
+      },
+      "9/26": {
+        "manual": true,
+        "paid": 2477.33
+      },
+      "gas_01/23": {
+        "manual": true,
+        "paid": 3500,
+        "type": "gas"
+      },
+      "gas_01/24": {
+        "manual": true,
+        "paid": 3932.4,
+        "type": "gas"
+      },
+      "gas_01/25": {
+        "manual": true,
+        "paid": 3204.63,
+        "type": "gas"
+      },
+      "gas_01/26": {
+        "manual": true,
+        "paid": 4547.2,
+        "type": "gas"
+      },
+      "gas_02/23": {
+        "manual": true,
+        "paid": 2169.6,
+        "type": "gas"
+      },
+      "gas_02/24": {
+        "manual": true,
+        "paid": 3796.8,
+        "type": "gas"
+      },
+      "gas_02/25": {
+        "manual": true,
+        "paid": 3495.96,
+        "type": "gas"
+      },
+      "gas_02/26": {
+        "manual": true,
+        "paid": 4834.88,
+        "type": "gas"
+      },
+      "gas_03/23": {
+        "manual": true,
+        "paid": 2113.08,
+        "type": "gas"
+      },
+      "gas_03/24": {
+        "manual": true,
+        "paid": 3498.48,
+        "type": "gas"
+      },
+      "gas_03/25": {
+        "manual": true,
+        "paid": 3585.6,
+        "type": "gas"
+      },
+      "gas_03/26": {
+        "manual": true,
+        "paid": 4537.92,
+        "type": "gas"
+      },
+      "gas_04/23": {
+        "manual": true,
+        "paid": 799.29,
+        "type": "gas"
+      },
+      "gas_04/24": {
+        "manual": true,
+        "paid": 2671.32,
+        "type": "gas"
+      },
+      "gas_04/25": {
+        "manual": true,
+        "paid": 1942.2,
+        "type": "gas"
+      },
+      "gas_04/26": {
+        "manual": true,
+        "paid": 2969.6,
+        "type": "gas"
+      },
+      "gas_05/23": {
+        "manual": true,
+        "paid": 1322.14,
+        "type": "gas"
+      },
+      "gas_05/24": {
+        "manual": true,
+        "paid": 1437.36,
+        "type": "gas"
+      },
+      "gas_05/25": {
+        "manual": true,
+        "paid": 1561.23,
+        "type": "gas"
+      },
+      "gas_05/26": {
+        "manual": true,
+        "paid": 2125.12,
+        "type": "gas"
+      },
+      "gas_06/23": {
+        "manual": true,
+        "paid": 603.21,
+        "type": "gas"
+      },
+      "gas_06/24": {
+        "manual": true,
+        "paid": 800.04,
+        "type": "gas"
+      },
+      "gas_06/25": {
+        "manual": true,
+        "paid": 440.73,
+        "type": "gas"
+      },
+      "gas_06/26": {
+        "manual": true,
+        "paid": 658.88,
+        "type": "gas"
+      },
+      "gas_07/23": {
+        "manual": true,
+        "paid": 112.23,
+        "type": "gas"
+      },
+      "gas_07/24": {
+        "manual": true,
+        "paid": 14.94,
+        "type": "gas"
+      },
+      "gas_07/25": {
+        "manual": true,
+        "paid": 58.87,
+        "type": "gas"
+      },
+      "gas_07/26": {
+        "manual": true,
+        "paid": 222.72,
+        "type": "gas"
+      },
+      "gas_08/23": {
+        "manual": true,
+        "paid": 168.96,
+        "type": "gas"
+      },
+      "gas_08/24": {
+        "manual": true,
+        "paid": 59.76,
+        "type": "gas"
+      },
+      "gas_08/25": {
+        "manual": true,
+        "paid": 58.87,
+        "type": "gas"
+      },
+      "gas_08/26": {
+        "manual": true,
+        "paid": 102.08,
+        "type": "gas"
+      },
+      "gas_09/24": {
+        "manual": true,
+        "paid": 485.55,
+        "type": "gas"
+      },
+      "gas_09/25": {
+        "manual": true,
+        "paid": 159.79,
+        "type": "gas"
+      },
+      "gas_10/24": {
+        "manual": true,
+        "paid": 993.51,
+        "type": "gas"
+      },
+      "gas_10/25": {
+        "manual": true,
+        "paid": 1559.04,
+        "type": "gas"
+      },
+      "gas_10/26": {
+        "manual": true,
+        "paid": 1206.4,
+        "type": "gas"
+      },
+      "gas_11/23": {
+        "manual": true,
+        "paid": 2134.47,
+        "type": "gas"
+      },
+      "gas_11/24": {
+        "manual": true,
+        "paid": 2569.68,
+        "type": "gas"
+      },
+      "gas_11/25": {
+        "manual": true,
+        "paid": 2876.8,
+        "type": "gas"
+      },
+      "gas_12/23": {
+        "manual": true,
+        "paid": 3288.3,
+        "type": "gas"
+      },
+      "gas_12/24": {
+        "manual": true,
+        "paid": 2995.47,
+        "type": "gas"
+      },
+      "gas_12/25": {
+        "manual": true,
+        "paid": 2978.88,
+        "type": "gas"
+      },
+      "gas_9/26": {
+        "manual": true,
+        "paid": 798.08,
+        "type": "gas"
+      },
+      "rent_11/26": {
+        "manual": true,
+        "paid": 5000,
+        "type": "rent"
+      }
+    }
+  },
+  "meters": {
+    "69": [
+      {
+        "lastCheck": "2026-07",
+        "name": "Холодная вода",
+        "nextCheck": "2032-07",
+        "number": "0262658",
+        "unit": "м³"
+      },
+      {
+        "lastCheck": "2023-11",
+        "name": "Газ",
+        "nextCheck": "2028-10",
+        "number": "06087868",
+        "unit": "м³"
+      },
+      {
+        "lastCheck": "2019-08",
+        "name": "Электричество (Т1/Т2)",
+        "nextCheck": "2040-08",
+        "number": "36566486",
+        "unit": "кВт·ч"
+      }
+    ],
+    "kirby": [
+      {
+        "lastCheck": "2026-04",
+        "name": "Электричество",
+        "nextCheck": "2031-04",
+        "number": "0058569",
+        "unit": "кВт·ч"
+      },
+      {
+        "lastCheck": "2026-01",
+        "name": "Газ",
+        "nextCheck": "2032-01",
+        "number": "119344",
+        "unit": "м³"
+      }
+    ]
+  }
+}
