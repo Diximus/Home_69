@@ -156,8 +156,21 @@ function saveLocalReading(v){
  persist();toast('Показания сохранены');changeView('dashboard');
 }
 function loadLegacyPayments(){
- // Convert old month-key payments to the current YYYY-MM form on first import.
- state.apartments.forEach(a=>{const legacy=state.payments[a.id==='apt69'?'69':a.id]||{};const converted={};Object.entries(legacy).forEach(([k,v])=>{if(k.startsWith('gas_')||k.startsWith('cap_')||k.startsWith('rent_'))return;const m=monthKey(k);if(m)converted[m]={invoiceAmount:v.invoice_amount??null,paidAmount:v.paid??0,paid:v.paid_status===true||v.paid!=null}});state.payments[a.id]=Object.assign(converted,state.payments[a.id]||{})});
+ // Convert old month-key payments and preserve separate gas/capital-repair payments in the new ledger.
+ state.apartments.forEach(a=>{
+  const legacy=state.payments[a.id==='apt69'?'69':a.id]||{}, converted={};
+  Object.entries(legacy).forEach(([k,v])=>{
+   if(k.startsWith('gas_')||k.startsWith('cap_')||k.startsWith('rent_')){
+    const type=k.startsWith('gas_')?'Оплата газа':k.startsWith('cap_')?'Капитальный ремонт':'Коммунальный платёж';
+    const raw=k.replace(/^(gas_|cap_|rent_)/,'');const m=monthKey(raw);
+    if(m&&v&&v.paid!=null&&!extraPayments.some(x=>x.legacyKey===a.id+':'+k))extraPayments.push({id:uid(),apartmentId:a.id,name:type,date:m+'-15',amount:Number(v.paid)||0,frequency:'once',paid:true,legacyKey:a.id+':'+k});
+    return;
+   }
+   const m=monthKey(k);if(m)converted[m]={invoiceAmount:v.invoice_amount??null,paidAmount:v.paid??0,paid:v.paid_status===true||v.paid!=null};
+  });
+  state.payments[a.id]=Object.assign(converted,state.payments[a.id]||{});
+ });
+ state.extraPayments=extraPayments;
 }
 function importJson(file){const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(x.version===2&&Array.isArray(x.apartments))state=x;else state=migrateLegacy(x);extraPayments=state.extraPayments||[];persist();render();toast('История импортирована')}catch(e){toast('Не удалось прочитать JSON')}};reader.readAsText(file)}
 function updateSync(text,status){$('#sync-label').textContent=text;$('#sync-dot').style.background=status==='ok'?'#20d69a':status==='error'?'#ff657e':'#ffad42'}
