@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f"><title>Home_69 — журнал коммунальных показаний</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.5/dist/pocketbase.umd.js"></script>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">⌂</div><div><strong>Home_69</strong><small>Журнал показаний</small></div></div>
+  <nav class="nav" id="side-nav">
+    <button class="active" data-view="dashboard"><span>⌂</span>Главная</button>
+    <button data-view="readings"><span>▤</span>Внести показания</button>
+    <button data-view="history"><span>◷</span>История и графики</button>
+    <button data-view="payments"><span>₽</span>Счета и платежи</button>
+    <button data-view="meters"><span>◉</span>Приборы учёта</button>
+    <button data-view="tariffs"><span>％</span>Тарифы и услуги</button>
+    <button data-view="settings"><span>⚙</span>Объекты и настройки</button>
+  </nav>
+  <div class="side-bottom">
+    <div class="apartment-mini"><small>Текущий объект</small><div id="side-apartment" style="font-weight:700;margin-top:4px">Квартира №69</div><small id="side-address">ул. Примерная</small></div>
+    <div class="sync-line"><i class="dot" id="sync-dot"></i><span id="sync-label">Локально</span></div>
+    <div class="sync-line"><span>◉</span><span id="sync-time">Ожидание синхронизации</span></div>
+  </div>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div><div class="eyebrow">Домашняя коммунальная аналитика</div><h1 class="page-title" id="page-title">Обзор объекта</h1><div class="subtitle" id="page-subtitle">Показания, расходы и платежи в одном месте</div></div>
+    <div class="top-actions">
+      <select class="select apartment-select" id="apartment-select" aria-label="Выбрать объект"></select>
+      <button class="icon-btn" id="sync-now" title="Синхронизировать">⟳</button>
+      <button class="icon-btn" id="settings-shortcut" title="Настройки">⚙</button>
+    </div>
+  </header>
+
+  <section class="section active" id="view-dashboard">
+    <div class="grid summary-grid" id="summary-cards"></div>
+    <div class="grid content-grid">
+      <article class="card"><div class="card-title"><span>Динамика потребления</span><small id="chart-period">Последние 12 месяцев</small></div><div class="chart-wrap"><canvas id="usage-chart"></canvas></div></article>
+      <article class="card"><div class="card-title"><span>Текущие показания</span><small id="reading-date">Последняя запись</small></div><div class="meter-list" id="current-meters"></div></article>
+    </div>
+    <div class="grid lower-grid">
+      <article class="card"><div class="card-title"><span>Последние записи</span><button class="btn btn-soft" data-go="history">Вся история →</button></div><div class="table-wrap" id="recent-history"></div></article>
+      <article class="card"><div class="card-title"><span>Счета и платежи</span><button class="btn btn-soft" data-go="payments">Открыть →</button></div><div id="recent-payments"></div></article>
+    </div>
+  </section>
+
+  <section class="section" id="view-readings">
+    <div class="section-heading"><div><h2>Новые показания</h2><p>Введите текущие значения приборов учёта — расход рассчитается автоматически</p></div></div>
+    <article class="card">
+      <form id="reading-form">
+        <div class="form-grid">
+          <div class="field"><label for="reading-month">Месяц показаний</label><input id="reading-month" type="month" required></div>
+          <div class="field"><label>Тип электросчётчика</label><input id="electricity-mode" disabled></div>
+        </div>
+        <div class="divider"></div>
+        <div class="grid reading-fields" id="reading-fields"></div>
+        <div class="warning-box" style="margin-top:14px">Показания должны быть не меньше предыдущих. Если счётчик заменён или обнулён, сначала отметьте замену в карточке прибора.</div>
+        <div class="form-actions"><button class="btn" type="reset">Очистить</button><button class="btn btn-primary" type="submit">Сохранить показания</button></div>
+      </form>
+    </article>
+  </section>
+
+  <section class="section" id="view-history">
+    <div class="section-heading"><div><h2>История и аналитика</h2><p>Все архивные показания и изменение потребления по периодам</p></div><div class="toolbar"><select class="select" id="history-range"><option value="12">12 месяцев</option><option value="24">24 месяца</option><option value="all">Вся история</option></select><button class="btn btn-soft" id="export-csv">Экспорт CSV</button></div></div>
+    <article class="card" style="margin-bottom:15px"><div class="card-title">Потребление ресурсов</div><div class="chart-wrap"><canvas id="history-chart"></canvas></div></article>
+    <article class="card"><div class="card-title">Архив показаний <small id="history-count"></small></div><div class="table-wrap" id="full-history"></div></article>
+  </section>
+
+  <section class="section" id="view-payments">
+    <div class="section-heading"><div><h2>Счета и платежи</h2><p>Расчётное начисление отдельно от фактически оплаченной суммы</p></div><button class="btn btn-primary" id="add-extra-payment">＋ Добавить разовый платёж</button></div>
+    <div class="grid summary-grid" id="payment-summary"></div>
+    <article class="card"><div class="card-title">История начислений и оплат</div><div class="table-wrap" id="payments-table"></div></article>
+    <article class="card" style="margin-top:15px"><div class="card-title">Разовые и ежегодные платежи</div><div class="small-note">Например, техническое обслуживание газового котла и плиты. Сумму можно указать отдельно для каждого года — она не обязана быть одинаковой.</div><div class="table-wrap" id="extra-payments-table"></div></article>
+  </section>
+
+  <section class="section" id="view-meters">
+    <div class="section-heading"><div><h2>Приборы учёта</h2><p>Серийные номера, даты установки и сроки очередной поверки</p></div><button class="btn btn-primary" id="add-meter">＋ Добавить прибор</button></div>
+    <div class="grid" id="meters-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))"></div>
+  </section>
+
+  <section class="section" id="view-tariffs">
+    <div class="section-heading"><div><h2>Тарифы и услуги ЖКХ</h2><p>Индивидуальные тарифы для каждого объекта и способы начисления</p></div></div>
+    <article class="card" style="margin-bottom:15px"><div class="card-title">Тарифы по счётчикам</div><form id="tariffs-form"><div class="form-grid" id="tariff-fields"></div><div class="form-actions"><button class="btn btn-primary" type="submit">Сохранить тарифы</button></div></form></article>
+    <article class="card"><div class="card-title"><span>Дополнительные услуги ЖКХ</span><button class="btn btn-soft" id="add-service">＋ Добавить услугу</button></div><div class="small-note" style="margin-bottom:12px">Начисление может рассчитываться за человека в месяц, за квартиру в месяц или за квадратный метр в месяц. Для услуг с переменной суммой выберите фиксированное начисление и меняйте его по периодам.</div><div id="services-list"></div></article>
+  </section>
+
+  <section class="section" id="view-settings">
+    <div class="section-heading"><div><h2>Объекты и настройки</h2><p>Добавляйте квартиры, дома и настраивайте набор приборов для каждого</p></div><button class="btn btn-primary" id="add-apartment">＋ Добавить объект</button></div>
+    <article class="card"><div class="card-title">Мои объекты</div><div id="apartments-list"></div></article>
+    <article class="card" style="margin-top:15px"><div class="card-title">Синхронизация PocketBase</div><div class="form-grid"><div class="field"><label>Адрес PocketBase</label><input id="pb-url" placeholder="http://адрес-сервера:8093"></div><div class="field"><label>Коллекция</label><input id="pb-collection" value="state"></div><div class="field"><label>Email (если требуется авторизация)</label><input id="pb-email" type="email" autocomplete="username"></div><div class="field"><label>Пароль (если требуется авторизация)</label><input id="pb-password" type="password" autocomplete="current-password"></div></div><div class="form-actions"><button class="btn btn-soft" id="backup-json">Скачать резервную копию</button><label class="btn" for="restore-json">Импорт JSON</label><input id="restore-json" type="file" accept="application/json,.json" hidden><button class="btn btn-primary" id="save-pb">Сохранить и подключить</button></div><p class="small-note" style="margin-top:12px">Данные хранятся локально и синхронизируются с одной записью PocketBase. Для совместимости используется коллекция state и запись main с JSON-полями data, tariffs, services, payments, meters и числовым updatedAt.</p></article>
+  </section>
+</main>
+</div>
+<nav class="mobile-nav" id="mobile-nav">
+<button class="active" data-view="dashboard"><b>⌂</b>Главная</button><button data-view="readings"><b>＋</b>Внести</button><button data-view="history"><b>◷</b>История</button><button data-view="payments"><b>₽</b>Оплаты</button><button data-view="settings"><b>⚙</b>Ещё</button>
+</nav>
+<div class="modal-backdrop" id="modal-backdrop"><div class="modal"><div class="modal-head"><h3 id="modal-title">Настройки</h3><button class="icon-btn" id="modal-close">✕</button></div><div id="modal-content"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body></html>
